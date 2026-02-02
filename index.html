@@ -561,7 +561,10 @@
     <div class="container">
         <header>
             <div class="header-top">
-                <h1>🎯 RD9產品開發進度戰情室</h1>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <h1>🎯 RD9產品開發進度戰情室</h1>
+                    <span id="lastUpdateDate" style="font-size: 0.9rem; color: var(--gray-600); font-weight: 500; white-space: nowrap;"></span>
+                </div>
                 <div class="upload-section">
                     <button onclick="reloadGoogleSheets()" class="btn btn-warning" id="reloadBtn">
                         🔄 重新載入
@@ -708,6 +711,41 @@
                         throw new Error(data.error);
                     }
 
+                    // 找出最後更新日期
+                    let latestDate = null;
+                    data.forEach(row => {
+                        const updateDate = row['最後更新日期'];
+                        if (updateDate) {
+                            // 處理日期格式（可能是字串或日期物件）
+                            let dateValue;
+                            if (typeof updateDate === 'string') {
+                                dateValue = new Date(updateDate);
+                            } else if (updateDate instanceof Date) {
+                                dateValue = updateDate;
+                            } else if (typeof updateDate === 'number') {
+                                // Excel 日期序號轉換
+                                dateValue = new Date((updateDate - 25569) * 86400 * 1000);
+                            }
+                            
+                            if (dateValue && !isNaN(dateValue.getTime())) {
+                                if (!latestDate || dateValue > latestDate) {
+                                    latestDate = dateValue;
+                                }
+                            }
+                        }
+                    });
+
+                    // 更新最後更新日期顯示
+                    const lastUpdateElement = document.getElementById('lastUpdateDate');
+                    if (latestDate) {
+                        const year = latestDate.getFullYear();
+                        const month = String(latestDate.getMonth() + 1).padStart(2, '0');
+                        const day = String(latestDate.getDate()).padStart(2, '0');
+                        lastUpdateElement.textContent = `最後更新：${year}/${month}/${day}`;
+                    } else {
+                        lastUpdateElement.textContent = '';
+                    }
+
                     productsData = data.map(row => ({
                         id: row['產品編號'] || '',
                         name: row['產品名稱'] || '',
@@ -769,6 +807,40 @@
                     const workbook = XLSX.read(data, { type: 'array' });
                     const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
                     const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                    
+                    // 找出最後更新日期
+                    let latestDate = null;
+                    jsonData.forEach(row => {
+                        const updateDate = row['最後更新日期'];
+                        if (updateDate) {
+                            let dateValue;
+                            if (typeof updateDate === 'string') {
+                                dateValue = new Date(updateDate);
+                            } else if (updateDate instanceof Date) {
+                                dateValue = updateDate;
+                            } else if (typeof updateDate === 'number') {
+                                // Excel 日期序號轉換
+                                dateValue = new Date((updateDate - 25569) * 86400 * 1000);
+                            }
+                            
+                            if (dateValue && !isNaN(dateValue.getTime())) {
+                                if (!latestDate || dateValue > latestDate) {
+                                    latestDate = dateValue;
+                                }
+                            }
+                        }
+                    });
+
+                    // 更新最後更新日期顯示
+                    const lastUpdateElement = document.getElementById('lastUpdateDate');
+                    if (latestDate) {
+                        const year = latestDate.getFullYear();
+                        const month = String(latestDate.getMonth() + 1).padStart(2, '0');
+                        const day = String(latestDate.getDate()).padStart(2, '0');
+                        lastUpdateElement.textContent = `最後更新：${year}/${month}/${day}`;
+                    } else {
+                        lastUpdateElement.textContent = '';
+                    }
                     
                     productsData = jsonData.map(row => ({
                         id: row['產品編號'] || '',
