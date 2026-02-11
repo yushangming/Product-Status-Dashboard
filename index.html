@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- 安全標頭：Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://script.google.com https://script.googleusercontent.com;
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+        font-src 'self' https://fonts.gstatic.com;
+        img-src 'self' https: data:;
+        connect-src 'self' https://script.google.com https://script.googleusercontent.com;
+        frame-ancestors 'none';
+        base-uri 'self';
+        form-action 'self';
+    ">
+    
+    <!-- 安全標頭：防止點擊劫持 -->
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    
+    <!-- 安全標頭：防止 MIME 類型嗅探 -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    
+    <!-- 安全標頭：XSS 保護 -->
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    
+    <!-- 安全標頭：Referrer Policy -->
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    
+    <title>RD9產品開發進度戰情室</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" integrity="sha512-1JRZqnD9VxhPt6WjqLJJm4FdD1HQdFgCBJmfB9bEJqHBJYHCjQRnTHQGYXqXTFLJqj0DP/7LMGJKh9qXCqXVrg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #7c3aed;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            color: var(--gray-900);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideDown 0.6s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+        }
+
+        .upload-section {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-block;
+            border: none;
+            font-family: 'Noto Sans TC', sans-serif;
+            font-size: 0.95rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .data-source-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--gray-600);
+            margin-bottom: 1rem;
+        }
+
+        .source-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+
+        .source-google {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .source-excel {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 2px solid var(--gray-200);
+            border-radius: 12px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-600);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        select {
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--gray-200);
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            font-family: 'Noto Sans TC', sans-serif;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        select:hover {
+            border-color: var(--primary);
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(124, 58, 237, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--secondary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.6s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--gray-600);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 900;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .category-section {
+            margin-bottom: 3rem;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .category-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 1.5rem;
+            border-radius: 16px 16px 0 0;
+            margin-bottom: 0;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .category-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+            background: rgba(255, 255, 255, 0.5);
+            padding: 1.5rem;
+            border-radius: 0 0 16px 16px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            border-bottom: 2px solid var(--gray-100);
+        }
+
+        .product-image {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            border-radius: 12px;
+            background: var(--gray-50);
+            padding: 0.5rem;
+        }
+
+        .product-info {
+            flex: 1;
+        }
+
+        .product-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--gray-900);
+        }
+
+        .product-desc {
+            font-size: 0.9rem;
+            color: var(--gray-600);
+            margin-bottom: 0.75rem;
+        }
+
+        .status-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .priority-tag {
+            padding: 0.35rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .priority-緊急 { background: #fee2e2; color: #991b1b; }
+        .priority-重要 { background: #fef3c7; color: #92400e; }
+        .priority-一般 { background: #dbeafe; color: #1e40af; }
+        .priority-次要 { background: #e0e7ff; color: #3730a3; }
+        .priority-暫停 { background: #f3f4f6; color: #6b7280; }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: var(--gray-100);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .release-date {
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--primary);
+        }
+
+        .owner-badges {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .owner-badge {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: white;
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .progress-section {
+            padding: 1.5rem;
+            background: var(--gray-50);
+        }
+
+        .progress-bar-container {
+            position: relative;
+            height: 60px;
+            margin-bottom: 1rem;
+        }
+
+        .progress-track {
+            position: absolute;
+            top: 25px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gray-200);
+            border-radius: 2px;
+        }
+
+        .progress-fill {
+            position: absolute;
+            top: 25px;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 2px;
+            transition: width 0.6s ease;
+        }
+
+        .progress-nodes {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .progress-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .node-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--gray-300);
+            border: 3px solid white;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .node-dot.active {
+            background: var(--primary);
+            width: 16px;
+            height: 16px;
+        }
+
+        .node-label {
+            font-size: 1rem;
+            color: var(--gray-600);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .node-label.active {
+            color: var(--gray-900);
+        }
+
+        .history-section {
+            padding: 1.5rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--gray-200);
+            font-size: 0.9rem;
+            color: var(--gray-700);
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--gray-900);
+        }
+
+        .empty-state p {
+            color: var(--gray-600);
+            margin-bottom: 1.5rem;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--gray-100);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--gray-400);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--gray-500);
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            h1 { font-size: 1.75rem; }
+            .header-top { flex-direction: column; gap: 1rem; align-items: flex-start; }
+            .upload-section { flex-wrap: wrap; width: 100%; }
+            .cards-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-top">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <h1>🎯 RD9產品開發進度戰情室</h1>
+                    <span id="lastUpdateDate" style="font-size: 0.9rem; color: var(--gray-600); font-weight: 500; white-space: nowrap;"></span>
+                </div>
+                <div class="upload-section">
+                    <button onclick="reloadGoogleSheets()" class="btn btn-warning" id="reloadBtn">
+                        🔄 重新載入
+                    </button>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="excelFile" accept=".xlsx,.xls" onchange="handleFileUpload(event)">
+                        <label for="excelFile" class="btn">
+                            📁 上傳 Excel 檔案
+                        </label>
+                    </div>
+                    <button onclick="downloadTemplate()" class="btn btn-success">
+                        📥 下載範本
+                    </button>
+                </div>
+            </div>
+            
+            <div class="data-source-info">
+                <span>資料來源：</span>
+                <span class="source-badge" id="sourceIndicator">載入中...</span>
+            </div>
+            
+            <div class="toolbar">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" placeholder="搜尋產品名稱或編號..." onkeyup="filterProducts()">
+                </div>
+                <div class="filter-group">
+                    <select id="categoryFilter" onchange="filterProducts()">
+                        <option value="">全部類別</option>
+                    </select>
+                    <select id="progressFilter" onchange="filterProducts()">
+                        <option value="">全部進度</option>
+                        <option value="進行中">進行中</option>
+                        <option value="已上市">已上市</option>
+                    </select>
+                    <select id="priorityFilter" onchange="filterProducts()">
+                        <option value="">全部優先權</option>
+                        <option value="緊急">緊急</option>
+                        <option value="重要">重要</option>
+                        <option value="一般">一般</option>
+                        <option value="次要">次要</option>
+                        <option value="暫停">暫停</option>
+                    </select>
+                    <select id="statusFilter" onchange="filterProducts()">
+                        <option value="">全部狀態</option>
+                        <option value="研發">研發</option>
+                        <option value="樣品">樣品</option>
+                        <option value="洽詢">洽詢</option>
+                        <option value="發售">發售</option>
+                        <option value="停產">停產</option>
+                    </select>
+                    <select id="stageFilter" onchange="filterProducts()">
+                        <option value="">全部階段</option>
+                        <option value="規劃">規劃</option>
+                        <option value="研發">研發</option>
+                        <option value="驗証">驗証</option>
+                        <option value="量產">量產</option>
+                        <option value="上市">上市</option>
+                    </select>
+                </div>
+            </div>
+        </header>
+
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-label">總專案數</div>
+                <div class="stat-value" style="color: var(--primary);" id="totalCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">進行中</div>
+                <div class="stat-value" style="color: var(--warning);" id="ongoingCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">已上市</div>
+                <div class="stat-value" style="color: var(--success);" id="completedCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">緊急項目</div>
+                <div class="stat-value" style="color: var(--danger);" id="urgentCount">0</div>
+            </div>
+        </div>
+
+        <div id="productsContainer">
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <div class="loading"></div>
+                </div>
+                <h3>載入資料中...</h3>
+                <p>正在從 Google Sheets 讀取產品資料</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // 安全工具函數
+        // ========================================
+        
+        // 1. HTML 轉義（防止 XSS 攻擊）
+        function escapeHtml(text) {
+            if (text === null || text === undefined) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // 2. URL 驗證
+        function isValidUrl(url) {
+            try {
+                const parsedUrl = new URL(url);
+                return parsedUrl.protocol === 'https:';
+            } catch {
+                return false;
+            }
+        }
+        
+        // 3. 請求限流器（防止 API 濫用）
+        class RateLimiter {
+            constructor(maxRequests = 10, windowMs = 60000) {
+                this.maxRequests = maxRequests;
+                this.windowMs = windowMs;
+                this.requests = [];
+            }
+            
+            canMakeRequest() {
+                const now = Date.now();
+                this.requests = this.requests.filter(time => now - time < this.windowMs);
+                
+                if (this.requests.length >= this.maxRequests) {
+                    const remainingTime = Math.ceil(this.getRemainingTime() / 1000);
+                    console.warn(`⚠️ API 請求過於頻繁，請等待 ${remainingTime} 秒後重試`);
+                    return false;
+                }
+                
+                this.requests.push(now);
+                return true;
+            }
+            
+            getRemainingTime() {
+                if (this.requests.length === 0) return 0;
+                const oldestRequest = Math.min(...this.requests);
+                return Math.max(0, this.windowMs - (Date.now() - oldestRequest));
+            }
+        }
+        
+        // 4. 安全的圖片 URL 處理
+        function sanitizeImageUrl(url) {
+            if (!url || url.trim() === '') {
+                return 'https://via.placeholder.com/80?text=No+Image';
+            }
+            
+            // 只允許 HTTPS 圖片
+            if (!isValidUrl(url)) {
+                console.warn('⚠️ 不安全的圖片 URL 已被封鎖:', url);
+                return 'https://via.placeholder.com/80?text=Invalid+URL';
+            }
+            
+            return url;
+        }
+        
+        // ========================================
+        // 應用程式主體
+        // ========================================
+        
+        let productsData = [];
+        let dataSource = 'google';
+        
+        // 初始化請求限流器（每分鐘最多 10 次請求）
+        const apiLimiter = new RateLimiter(10, 60000);
+        
+        // Google Apps Script 部署網址（從環境變數讀取或使用預設值）
+        //const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx6Vr9t_oKCmtXASqWHDq9C2roNKP6Jd1TVeCV33T8dAit9IMtdKhtu4o0ChKDM2J5qkQ/exec';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxNLI-1r1SIWOMw5LHmbqkmJKCXNQUegrrVzcWo2UY7Y28QliEpc9jYVG8J1GEbmRUsCg/exec';
+
+        const statusColors = {
+            '研發': '#FFA726',
+            '樣品': '#FFA726',
+            '洽詢': '#B0BEC5',
+            '發售': '#42A5F5',
+            '停產': '#78909C'
+        };
+
+        const stages = ['規劃', '研發', '驗証', '量產', '上市'];
+
+        window.addEventListener('DOMContentLoaded', function() {
+            loadGoogleSheets();
+        });
+
+        function updateSourceIndicator(source) {
+            const indicator = document.getElementById('sourceIndicator');
+            
+            if (source === 'google') {
+                indicator.textContent = 'Google Sheets (自動同步)';
+                indicator.className = 'source-badge source-google';
+            } else if (source === 'excel') {
+                indicator.textContent = 'Excel 檔案';
+                indicator.className = 'source-badge source-excel';
+            } else {
+                indicator.textContent = '載入中...';
+                indicator.className = 'source-badge';
+            }
+        }
+
+        function loadGoogleSheets() {
+            if (dataSource !== 'google') return;
+            
+            // 檢查請求限流
+            if (!apiLimiter.canMakeRequest()) {
+                const remainingTime = Math.ceil(apiLimiter.getRemainingTime() / 1000);
+                showError(`
+                    <strong>請求過於頻繁</strong><br><br>
+                    為了保護系統安全，請等待 ${remainingTime} 秒後再試。<br><br>
+                    如需立即查看資料，請使用「上傳 Excel 檔案」功能。
+                `);
+                return;
+            }
+            
+            updateSourceIndicator('loading');
+            
+            // 添加 origin 參數進行來源驗證
+            const apiUrl = APPS_SCRIPT_URL + '?origin=' + encodeURIComponent(window.location.origin);
+            
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('無法連接到 Google Sheets');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+
+                    // 找出最後更新日期
+                    let latestDate = null;
+                    data.forEach(row => {
+                        const updateDate = row['最後更新日期'];
+                        if (updateDate) {
+                            // 處理日期格式（可能是字串或日期物件）
+                            let dateValue;
+                            if (typeof updateDate === 'string') {
+                                dateValue = new Date(updateDate);
+                            } else if (updateDate instanceof Date) {
+                                dateValue = updateDate;
+                            } else if (typeof updateDate === 'number') {
+                                // Excel 日期序號轉換
+                                dateValue = new Date((updateDate - 25569) * 86400 * 1000);
+                            }
+                            
+                            if (dateValue && !isNaN(dateValue.getTime())) {
+                                if (!latestDate || dateValue > latestDate) {
+                                    latestDate = dateValue;
+                                }
+                            }
+                        }
+                    });
+
+                    // 更新最後更新日期顯示
+                    const lastUpdateElement = document.getElementById('lastUpdateDate');
+                    if (latestDate) {
+                        const year = latestDate.getFullYear();
+                        const month = String(latestDate.getMonth() + 1).padStart(2, '0');
+                        const day = String(latestDate.getDate()).padStart(2, '0');
+                        lastUpdateElement.textContent = `最後更新：${year}/${month}/${day}`;
+                    } else {
+                        lastUpdateElement.textContent = '';
+                    }
+
+                    productsData = data.map(row => ({
+                        id: row['產品編號'] || '',
+                        name: row['產品名稱'] || '',
+                        category: row['產品類別'] || '',
+                        image: row['產品圖片網址'] || 'https://via.placeholder.com/80',
+                        description: row['產品描述'] || '',
+                        priority: row['優先權'] || '一般',
+                        status: row['供貨狀態'] || '',
+                        releaseDate: row['預計上市時間'] || '',
+                        stage: row['開發階段'] || '規劃',
+                        owner1: row['負責人1'] || '',
+                        owner1Color: row['負責人1顏色'] || '#33FF57',
+                        owner2: row['負責人2'] || '',
+                        owner2Color: row['負責人2顏色'] || '#33A1FF',
+                        owner3: row['負責人3'] || '',
+                        owner3Color: row['負責人3顏色'] || '#FFBD33',
+                        history: row['專案歷程'] || '',
+                        lastUpdate: row['最後更新日期'] || ''
+                    }));
+                    
+                    console.log('成功載入', productsData.length, '筆資料');
+                    updateSourceIndicator('google');
+                    updateCategoryFilter();
+                    renderProducts();
+                    updateStats();
+                })
+                .catch(error => {
+                    console.error('Google Sheets 載入失敗:', error);
+                    showError(`
+                        <strong>無法連接到 Google Sheets</strong><br><br>
+                        錯誤訊息: ${error.message}<br><br>
+                        請點擊上方「上傳 Excel 檔案」按鈕使用本地檔案
+                    `);
+                });
+        }
+
+        function reloadGoogleSheets() {
+            if (dataSource === 'excel') {
+                if (confirm('目前使用 Excel 檔案資料，重新載入將切換回 Google Sheets 資料源。是否繼續？')) {
+                    dataSource = 'google';
+                    loadGoogleSheets();
+                }
+            } else {
+                loadGoogleSheets();
+            }
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            dataSource = 'excel';
+            updateSourceIndicator('excel');
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                    
+                    // 找出最後更新日期
+                    let latestDate = null;
+                    jsonData.forEach(row => {
+                        const updateDate = row['最後更新日期'];
+                        if (updateDate) {
+                            let dateValue;
+                            if (typeof updateDate === 'string') {
+                                dateValue = new Date(updateDate);
+                            } else if (updateDate instanceof Date) {
+                                dateValue = updateDate;
+                            } else if (typeof updateDate === 'number') {
+                                // Excel 日期序號轉換
+                                dateValue = new Date((updateDate - 25569) * 86400 * 1000);
+                            }
+                            
+                            if (dateValue && !isNaN(dateValue.getTime())) {
+                                if (!latestDate || dateValue > latestDate) {
+                                    latestDate = dateValue;
+                                }
+                            }
+                        }
+                    });
+
+                    // 更新最後更新日期顯示
+                    const lastUpdateElement = document.getElementById('lastUpdateDate');
+                    if (latestDate) {
+                        const year = latestDate.getFullYear();
+                        const month = String(latestDate.getMonth() + 1).padStart(2, '0');
+                        const day = String(latestDate.getDate()).padStart(2, '0');
+                        lastUpdateElement.textContent = `最後更新：${year}/${month}/${day}`;
+                    } else {
+                        lastUpdateElement.textContent = '';
+                    }
+                    
+                    productsData = jsonData.map(row => ({
+                        id: row['產品編號'] || '',
+                        name: row['產品名稱'] || '',
+                        category: row['產品類別'] || '',
+                        image: row['產品圖片網址'] || 'https://via.placeholder.com/80',
+                        description: row['產品描述'] || '',
+                        priority: row['優先權'] || '一般',
+                        status: row['供貨狀態'] || '',
+                        releaseDate: row['預計上市時間'] || '',
+                        stage: row['開發階段'] || '規劃',
+                        owner1: row['負責人1'] || '',
+                        owner1Color: row['負責人1顏色'] || '#33FF57',
+                        owner2: row['負責人2'] || '',
+                        owner2Color: row['負責人2顏色'] || '#33A1FF',
+                        owner3: row['負責人3'] || '',
+                        owner3Color: row['負責人3顏色'] || '#FFBD33',
+                        history: row['專案歷程'] || '',
+                        lastUpdate: row['最後更新日期'] || ''
+                    }));
+
+                    updateCategoryFilter();
+                    renderProducts();
+                    updateStats();
+                } catch (error) {
+                    alert('檔案解析失敗: ' + error.message);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function showError(message) {
+            document.getElementById('productsContainer').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">⚠️</div>
+                    <h3>載入失敗</h3>
+                    <div style="text-align: left; max-width: 600px; margin: 0 auto;">
+                        <p>${message}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateCategoryFilter() {
+            const categories = [...new Set(productsData.map(p => p.category))].filter(Boolean);
+            const select = document.getElementById('categoryFilter');
+            const currentValue = select.value;
+            select.innerHTML = '<option value="">全部類別</option>';
+            categories.forEach(cat => {
+                select.innerHTML += `<option value="${cat}">${cat}</option>`;
+            });
+            select.value = currentValue;
+        }
+
+        function renderProducts() {
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const progressFilter = document.getElementById('progressFilter').value;
+            const priorityFilter = document.getElementById('priorityFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const stageFilter = document.getElementById('stageFilter').value;
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+            let filtered = productsData.filter(p => {
+                const matchCategory = !categoryFilter || p.category === categoryFilter;
+                
+                // 進度篩選邏輯
+                let matchProgress = true;
+                if (progressFilter === '進行中') {
+                    matchProgress = ['規劃', '研發', '驗証', '量產'].includes(p.stage);
+                } else if (progressFilter === '已上市') {
+                    matchProgress = p.stage === '上市';
+                }
+                
+                const matchPriority = !priorityFilter || p.priority === priorityFilter;
+                const matchStatus = !statusFilter || p.status === statusFilter;
+                const matchStage = !stageFilter || p.stage === stageFilter;
+                const matchSearch = !searchTerm || 
+                    p.id.toLowerCase().includes(searchTerm) || 
+                    p.name.toLowerCase().includes(searchTerm) ||
+                    p.description.toLowerCase().includes(searchTerm);
+                return matchCategory && matchProgress && matchPriority && matchStatus && matchStage && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                document.getElementById('productsContainer').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔍</div>
+                        <h3>沒有找到符合條件的產品</h3>
+                        <p>請調整篩選條件或搜尋關鍵字</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const grouped = {};
+            filtered.forEach(product => {
+                const cat = product.category || '其他';
+                if (!grouped[cat]) grouped[cat] = [];
+                grouped[cat].push(product);
+            });
+
+            let html = '';
+            Object.keys(grouped).forEach(category => {
+                html += `
+                    <div class="category-section">
+                        <div class="category-header">
+                            <h2>${category}</h2>
+                        </div>
+                        <div class="cards-grid">
+                            ${grouped[category].map(p => createProductCard(p)).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('productsContainer').innerHTML = html;
+        }
+
+        function createProductCard(product) {
+            const stageIndex = stages.indexOf(product.stage);
+            const progressPercent = stageIndex >= 0 ? ((stageIndex + 1) / stages.length) * 100 : 0;
+
+            const owners = [];
+            if (product.owner1) owners.push({ name: product.owner1, color: product.owner1Color });
+            if (product.owner2) owners.push({ name: product.owner2, color: product.owner2Color });
+            if (product.owner3) owners.push({ name: product.owner3, color: product.owner3Color });
+
+            const historyItems = product.history ? product.history.split(/\n/).filter(h => h.trim()) : [];
+
+            // 使用 escapeHtml 防止 XSS 攻擊
+            const safeImageUrl = sanitizeImageUrl(product.image);
+            const safeId = escapeHtml(product.id);
+            const safeName = escapeHtml(product.name);
+            const safeDescription = escapeHtml(product.description);
+            const safePriority = escapeHtml(product.priority);
+            const safeStatus = escapeHtml(product.status);
+            const safeReleaseDate = escapeHtml(product.releaseDate);
+
+            return `
+                <div class="product-card">
+                    <div class="card-header">
+                        <img src="${safeImageUrl}" alt="${safeName}" class="product-image" 
+                             onerror="this.src='https://via.placeholder.com/80?text=No+Image'">
+                        <div class="product-info">
+                            <div class="product-title">${safeId}</div>
+                            <div class="product-desc">${safeDescription}</div>
+                            <div class="status-row">
+                                <span class="priority-tag priority-${safePriority}">${safePriority}</span>
+                                <div class="status-badge">
+                                    <span class="status-dot" style="background: ${statusColors[product.status] || '#999'}"></span>
+                                    <span>${safeStatus}</span>
+                                </div>
+                                ${product.releaseDate ? `<span class="release-date">📅 ${safeReleaseDate}</span>` : ''}
+                            </div>
+                            ${owners.length > 0 ? `
+                                <div class="owner-badges">
+                                    ${owners.map(o => {
+                                        const safeName = escapeHtml(o.name);
+                                        const safeColor = escapeHtml(o.color);
+                                        return `
+                                        <div class="owner-badge" style="background: ${safeColor}" title="${safeName}">
+                                            ${escapeHtml(getInitials(o.name))}
+                                        </div>
+                                    `;
+                                    }).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    <div class="progress-section">
+                        <div class="progress-bar-container">
+                            <div class="progress-track"></div>
+                            <div class="progress-fill" style="width: ${progressPercent}%"></div>
+                            <div class="progress-nodes">
+                                ${stages.map((stage, i) => {
+                                    const safeStage = escapeHtml(stage);
+                                    return `
+                                    <div class="progress-node">
+                                        <div class="node-dot ${i <= stageIndex ? 'active' : ''}"></div>
+                                        <span class="node-label ${i <= stageIndex ? 'active' : ''}">${safeStage}</span>
+                                    </div>
+                                `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    </div>
+                    ${historyItems.length > 0 ? `
+                        <div class="history-section">
+                            ${historyItems.map(item => `<div class="history-item">${escapeHtml(item)}</div>`).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function getInitials(name) {
+            if (!name) return '';
+            const parts = name.split('');
+            if (parts.length >= 2) {
+                return parts[parts.length - 2] + parts[parts.length - 1];
+            }
+            return name.substring(0, 2);
+        }
+
+        function filterProducts() {
+            renderProducts();
+            updateStats();
+        }
+
+        function updateStats() {
+            const total = productsData.length;
+            const ongoing = productsData.filter(p => ['規劃', '研發', '驗証', '量產'].includes(p.stage)).length;
+            const completed = productsData.filter(p => p.stage === '上市').length;
+            const urgent = productsData.filter(p => p.priority === '緊急').length;
+
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('ongoingCount').textContent = ongoing;
+            document.getElementById('completedCount').textContent = completed;
+            document.getElementById('urgentCount').textContent = urgent;
+        }
+
+        function downloadTemplate() {
+            window.open('產品開發進度追蹤範本.xlsx', '_blank');
+        }
+    </script>
+</body>
+</html>
