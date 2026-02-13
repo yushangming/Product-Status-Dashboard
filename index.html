@@ -7,7 +7,7 @@
     <!-- 安全標頭：Content Security Policy -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
-        script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://script.google.com https://script.googleusercontent.com;
+        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://script.google.com https://script.googleusercontent.com;
         style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
         font-src 'self' https://fonts.gstatic.com;
         img-src 'self' https: data:;
@@ -786,16 +786,34 @@
         const productStages = ['規劃', '研發', '驗証', '量產', '上市'];
         const projectStages = ['現勘', '討論', '報價', '執行', '結案'];
         
-        // 根據產品類別獲取對應的階段
-        function getStagesForCategory(category) {
-            return (category === '專案') ? projectStages : productStages;
+        // 根據產品名稱獲取對應的階段（如果產品名稱是"專案"，則使用專案階段）
+        function getStagesForCategory(category, productName) {
+            return (productName === '專案') ? projectStages : productStages;
         }
         
         // 為了向後兼容，保留 stages 變數（預設為產品階段）
         const stages = productStages;
 
         window.addEventListener('DOMContentLoaded', function() {
-            loadGoogleSheets();
+            // 檢查 XLSX 函式庫是否已載入
+            if (typeof XLSX === 'undefined') {
+                console.error('❌ XLSX 函式庫載入失敗');
+                showError(`
+                    <strong>XLSX 函式庫載入失敗</strong><br><br>
+                    Excel 檔案上傳功能暫時無法使用。<br><br>
+                    可能原因：<br>
+                    1. 網路連線問題<br>
+                    2. CDN 服務暫時無法存取<br>
+                    3. 瀏覽器安全設定阻擋<br><br>
+                    建議：<br>
+                    - 重新整理頁面<br>
+                    - 使用「重新載入」按鈕從 Google Sheets 載入資料<br>
+                    - 確認網路連線正常
+                `);
+            } else {
+                console.log('✅ XLSX 函式庫載入成功');
+                loadGoogleSheets();
+            }
         });
 
         function updateSourceIndicator(source) {
@@ -930,16 +948,64 @@
             const file = event.target.files[0];
             if (!file) return;
 
+            // 檢查 XLSX 函式庫是否已載入
+            if (typeof XLSX === 'undefined') {
+                alert('檔案解析失敗！\n\n錯誤訊息：XLSX 函式庫未載入\n\n請確認：\n1. 網路連線正常\n2. 重新整理頁面後再試\n3. 如果問題持續，請聯繫技術支援');
+                event.target.value = '';
+                return;
+            }
+
+            // 驗證檔案類型
+            const validExtensions = ['.xlsx', '.xls'];
+            const fileName = file.name.toLowerCase();
+            const isValidType = validExtensions.some(ext => fileName.endsWith(ext));
+            
+            if (!isValidType) {
+                alert('檔案格式錯誤！請上傳 Excel 檔案 (.xlsx 或 .xls)');
+                event.target.value = '';
+                return;
+            }
+
             dataSource = 'excel';
             updateSourceIndicator('excel');
 
             const reader = new FileReader();
+            reader.onerror = function() {
+                alert('檔案讀取失敗！請確認檔案沒有損壞並重試。');
+                event.target.value = '';
+            };
+            
             reader.onload = function(e) {
                 try {
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
+                    
+                    // 檢查工作表是否存在
+                    if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+                        throw new Error('Excel 檔案中沒有找到工作表');
+                    }
+                    
                     const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    if (!firstSheet) {
+                        throw new Error('無法讀取工作表：' + workbook.SheetNames[0]);
+                    }
+                    
                     const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                    
+                    // 檢查是否有資料
+                    if (!jsonData || jsonData.length === 0) {
+                        throw new Error('Excel 檔案中沒有資料');
+                    }
+                    
+                    // 驗證必要欄位
+                    const requiredColumns = ['產品名稱', '產品類別', '開發階段'];
+                    const firstRow = jsonData[0];
+                    const missingColumns = requiredColumns.filter(col => !(col in firstRow));
+                    
+                    if (missingColumns.length > 0) {
+                        throw new Error('Excel 檔案缺少必要欄位：' + missingColumns.join('、') + 
+                            '\n\n請確認使用正確的範本格式。');
+                    }
                     
                     // 找出最後更新日期
                     let latestDate = null;
@@ -998,8 +1064,16 @@
                     updateCategoryFilter();
                     renderProducts();
                     updateStats();
+                    
+                    console.log('✅ Excel 檔案載入成功，共 ' + productsData.length + ' 筆資料');
+                    
                 } catch (error) {
-                    alert('檔案解析失敗: ' + error.message);
+                    console.error('Excel 解析錯誤:', error);
+                    alert('檔案解析失敗！\n\n錯誤訊息：' + error.message + 
+                        '\n\n請確認：\n1. 檔案格式正確（.xlsx 或 .xls）\n2. 檔案沒有密碼保護\n3. 包含必要的欄位（產品名稱、產品類別、開發階段）');
+                    event.target.value = '';
+                    dataSource = 'google';
+                    updateSourceIndicator('google');
                 }
             };
             reader.readAsArrayBuffer(file);
@@ -1042,12 +1116,12 @@
                 // 進度篩選邏輯（支援產品和專案）
                 let matchProgress = true;
                 if (progressFilter === '進行中') {
-                    const currentStages = getStagesForCategory(p.category);
+                    const currentStages = getStagesForCategory(p.category, p.name);
                     const stageIndex = currentStages.indexOf(p.stage);
                     // 只要不是最後一個階段，就算進行中
                     matchProgress = stageIndex >= 0 && stageIndex < currentStages.length - 1;
                 } else if (progressFilter === '已上市') {
-                    const currentStages = getStagesForCategory(p.category);
+                    const currentStages = getStagesForCategory(p.category, p.name);
                     const lastStage = currentStages[currentStages.length - 1];
                     matchProgress = p.stage === lastStage;
                 }
@@ -1098,8 +1172,8 @@
         }
 
         function createProductCard(product) {
-            // 根據產品類別決定使用哪組階段
-            const currentStages = getStagesForCategory(product.category);
+            // 根據產品名稱決定使用哪組階段
+            const currentStages = getStagesForCategory(product.category, product.name);
             const stageIndex = currentStages.indexOf(product.stage);
             const progressPercent = stageIndex >= 0 ? ((stageIndex + 1) / currentStages.length) * 100 : 0;
 
@@ -1195,7 +1269,7 @@
             
             // 進行中的判斷：產品類別的前4個階段，或專案類別的前4個階段
             const ongoing = productsData.filter(p => {
-                const currentStages = getStagesForCategory(p.category);
+                const currentStages = getStagesForCategory(p.category, p.name);
                 const stageIndex = currentStages.indexOf(p.stage);
                 // 只要不是最後一個階段，就算進行中
                 return stageIndex >= 0 && stageIndex < currentStages.length - 1;
@@ -1203,7 +1277,7 @@
             
             // 已完成的判斷：產品的「上市」或專案的「結案」
             const completed = productsData.filter(p => {
-                const currentStages = getStagesForCategory(p.category);
+                const currentStages = getStagesForCategory(p.category, p.name);
                 const lastStage = currentStages[currentStages.length - 1];
                 return p.stage === lastStage;
             }).length;
