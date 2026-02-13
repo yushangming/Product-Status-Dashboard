@@ -795,25 +795,20 @@
         const stages = productStages;
 
         window.addEventListener('DOMContentLoaded', function() {
-            // 檢查 XLSX 函式庫是否已載入
+            // 先顯示介面，資料載入設為異步
+            console.log('📱 頁面載入完成，準備載入資料...');
+            
+            // 檢查 XLSX 函式庫是否已載入（但不阻塞）
             if (typeof XLSX === 'undefined') {
-                console.error('❌ XLSX 函式庫載入失敗');
-                showError(`
-                    <strong>XLSX 函式庫載入失敗</strong><br><br>
-                    Excel 檔案上傳功能暫時無法使用。<br><br>
-                    可能原因：<br>
-                    1. 網路連線問題<br>
-                    2. CDN 服務暫時無法存取<br>
-                    3. 瀏覽器安全設定阻擋<br><br>
-                    建議：<br>
-                    - 重新整理頁面<br>
-                    - 使用「重新載入」按鈕從 Google Sheets 載入資料<br>
-                    - 確認網路連線正常
-                `);
+                console.warn('⚠️ XLSX 函式庫尚未載入，Excel 上傳功能暫時無法使用');
             } else {
                 console.log('✅ XLSX 函式庫載入成功');
-                loadGoogleSheets();
             }
+            
+            // 使用 setTimeout 讓頁面先渲染，然後異步載入資料
+            setTimeout(function() {
+                loadGoogleSheets();
+            }, 100); // 延遲 100ms，讓頁面先顯示
         });
 
         function updateSourceIndicator(source) {
@@ -847,13 +842,33 @@
             
             updateSourceIndicator('loading');
             
+            // 顯示載入中的提示（不阻塞頁面）
+            const container = document.getElementById('productsContainer');
+            if (container) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⏳</div>
+                        <h3>正在載入資料...</h3>
+                        <p>從 Google Sheets 讀取資料中，請稍候</p>
+                    </div>
+                `;
+            }
+            
             // 添加 origin 參數進行來源驗證
             const apiUrl = APPS_SCRIPT_URL + '?origin=' + encodeURIComponent(window.location.origin);
             
-            fetch(apiUrl)
+            // 添加超時控制（30秒）
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 30000);
+            
+            fetch(apiUrl, { 
+                signal: controller.signal,
+                cache: 'no-cache' // 避免快取導致的延遲
+            })
                 .then(response => {
+                    clearTimeout(timeoutId);
                     if (!response.ok) {
-                        throw new Error('無法連接到 Google Sheets');
+                        throw new Error('無法連接到 Google Sheets (HTTP ' + response.status + ')');
                     }
                     return response.json();
                 })
@@ -917,17 +932,24 @@
                         lastUpdate: row['最後更新日期'] || ''
                     }));
                     
-                    console.log('成功載入', productsData.length, '筆資料');
+                    console.log('✅ 成功載入', productsData.length, '筆資料');
                     updateSourceIndicator('google');
                     updateCategoryFilter();
                     renderProducts();
                     updateStats();
                 })
                 .catch(error => {
-                    console.error('Google Sheets 載入失敗:', error);
+                    clearTimeout(timeoutId);
+                    console.error('❌ Google Sheets 載入失敗:', error);
+                    
+                    let errorMessage = error.message;
+                    if (error.name === 'AbortError') {
+                        errorMessage = '載入超時（超過 30 秒）';
+                    }
+                    
                     showError(`
                         <strong>無法連接到 Google Sheets</strong><br><br>
-                        錯誤訊息: ${error.message}<br><br>
+                        錯誤訊息: ${errorMessage}<br><br>
                         請點擊上方「上傳 Excel 檔案」按鈕使用本地檔案
                     `);
                 });
