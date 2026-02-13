@@ -646,11 +646,18 @@
                     </select>
                     <select id="stageFilter" onchange="filterProducts()">
                         <option value="">全部階段</option>
+                        <!-- 產品階段 -->
                         <option value="規劃">規劃</option>
                         <option value="研發">研發</option>
                         <option value="驗証">驗証</option>
                         <option value="量產">量產</option>
                         <option value="上市">上市</option>
+                        <!-- 專案階段 -->
+                        <option value="現勘">現勘</option>
+                        <option value="討論">討論</option>
+                        <option value="報價">報價</option>
+                        <option value="執行">執行</option>
+                        <option value="結案">結案</option>
                     </select>
                 </div>
             </div>
@@ -766,7 +773,6 @@
         // Google Apps Script 部署網址（從環境變數讀取或使用預設值）
         //const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx6Vr9t_oKCmtXASqWHDq9C2roNKP6Jd1TVeCV33T8dAit9IMtdKhtu4o0ChKDM2J5qkQ/exec';
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxNLI-1r1SIWOMw5LHmbqkmJKCXNQUegrrVzcWo2UY7Y28QliEpc9jYVG8J1GEbmRUsCg/exec';
-        //const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyRswfDFErBXt6dl4Bxp-mm80HZLIDUf22UwDQv6W5phwPI_toYVsKQhgQJqlyg3m2Gzw/exec';
 
         const statusColors = {
             '研發': '#FFA726',
@@ -776,7 +782,17 @@
             '停產': '#78909C'
         };
 
-        const stages = ['規劃', '研發', '驗証', '量產', '上市'];
+        // 定義不同類別的階段
+        const productStages = ['規劃', '研發', '驗証', '量產', '上市'];
+        const projectStages = ['現勘', '討論', '報價', '執行', '結案'];
+        
+        // 根據產品類別獲取對應的階段
+        function getStagesForCategory(category) {
+            return (category === '專案') ? projectStages : productStages;
+        }
+        
+        // 為了向後兼容，保留 stages 變數（預設為產品階段）
+        const stages = productStages;
 
         window.addEventListener('DOMContentLoaded', function() {
             loadGoogleSheets();
@@ -1023,12 +1039,17 @@
             let filtered = productsData.filter(p => {
                 const matchCategory = !categoryFilter || p.category === categoryFilter;
                 
-                // 進度篩選邏輯
+                // 進度篩選邏輯（支援產品和專案）
                 let matchProgress = true;
                 if (progressFilter === '進行中') {
-                    matchProgress = ['規劃', '研發', '驗証', '量產'].includes(p.stage);
+                    const currentStages = getStagesForCategory(p.category);
+                    const stageIndex = currentStages.indexOf(p.stage);
+                    // 只要不是最後一個階段，就算進行中
+                    matchProgress = stageIndex >= 0 && stageIndex < currentStages.length - 1;
                 } else if (progressFilter === '已上市') {
-                    matchProgress = p.stage === '上市';
+                    const currentStages = getStagesForCategory(p.category);
+                    const lastStage = currentStages[currentStages.length - 1];
+                    matchProgress = p.stage === lastStage;
                 }
                 
                 const matchPriority = !priorityFilter || p.priority === priorityFilter;
@@ -1077,8 +1098,10 @@
         }
 
         function createProductCard(product) {
-            const stageIndex = stages.indexOf(product.stage);
-            const progressPercent = stageIndex >= 0 ? ((stageIndex + 1) / stages.length) * 100 : 0;
+            // 根據產品類別決定使用哪組階段
+            const currentStages = getStagesForCategory(product.category);
+            const stageIndex = currentStages.indexOf(product.stage);
+            const progressPercent = stageIndex >= 0 ? ((stageIndex + 1) / currentStages.length) * 100 : 0;
 
             const owners = [];
             if (product.owner1) owners.push({ name: product.owner1, color: product.owner1Color });
@@ -1132,7 +1155,7 @@
                             <div class="progress-track"></div>
                             <div class="progress-fill" style="width: ${progressPercent}%"></div>
                             <div class="progress-nodes">
-                                ${stages.map((stage, i) => {
+                                ${currentStages.map((stage, i) => {
                                     const safeStage = escapeHtml(stage);
                                     return `
                                     <div class="progress-node">
@@ -1169,8 +1192,22 @@
 
         function updateStats() {
             const total = productsData.length;
-            const ongoing = productsData.filter(p => ['規劃', '研發', '驗証', '量產'].includes(p.stage)).length;
-            const completed = productsData.filter(p => p.stage === '上市').length;
+            
+            // 進行中的判斷：產品類別的前4個階段，或專案類別的前4個階段
+            const ongoing = productsData.filter(p => {
+                const currentStages = getStagesForCategory(p.category);
+                const stageIndex = currentStages.indexOf(p.stage);
+                // 只要不是最後一個階段，就算進行中
+                return stageIndex >= 0 && stageIndex < currentStages.length - 1;
+            }).length;
+            
+            // 已完成的判斷：產品的「上市」或專案的「結案」
+            const completed = productsData.filter(p => {
+                const currentStages = getStagesForCategory(p.category);
+                const lastStage = currentStages[currentStages.length - 1];
+                return p.stage === lastStage;
+            }).length;
+            
             const urgent = productsData.filter(p => p.priority === '緊急').length;
 
             document.getElementById('totalCount').textContent = total;
