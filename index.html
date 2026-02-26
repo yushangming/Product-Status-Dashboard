@@ -653,6 +653,40 @@
             margin-left: 0.25rem;
         }
 
+        .owner-tooltip {
+            position: fixed;
+            background: white;
+            border-radius: 12px;
+            padding: 0.85rem 1rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+            min-width: 210px;
+            border-top: 3px solid var(--primary);
+        }
+
+        .owner-tooltip.visible {
+            opacity: 1;
+        }
+
+        .owner-tooltip-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--gray-900);
+            margin-bottom: 0.55rem;
+        }
+
+        .owner-tooltip-row {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.82rem;
+            color: var(--gray-700);
+            margin-top: 0.3rem;
+        }
+
         @media (max-width: 768px) {
             body { padding: 1rem; }
             h1 { font-size: 1.75rem; }
@@ -861,6 +895,15 @@
             '發售': '#42A5F5',
             '停產': '#78909C',
             '暫停出貨': '#90A4AE'
+        };
+
+        const OWNER_INFO = {
+            '陳慶文': { en: 'Sun',    ext: '6905', email: 'sun_chen@icpdas.com'  },
+            '吳家豪': { en: 'Howard', ext: '6907', email: 'howard@icpdas.com'    },
+            '陳建安': { en: 'Jason',  ext: '6903', email: 'jason_chen@icpdas.com'},
+            '游尚明': { en: 'Cony',   ext: '6902', email: 'cony@icpdas.com'      },
+            '嚴清宇': { en: 'Chris',  ext: '6909', email: 'chris_yen@icpdas.com' },
+            '陳俊廷': { en: 'Tim',    ext: '6906', email: 'tim_chen@icpdas.com'  },
         };
 
         // 定義不同類別的階段
@@ -1389,7 +1432,7 @@
                 const initials = escapeHtml(getInitials(name));
 
                 cards += `
-                    <div class="owner-update-card" style="border-left-color:${borderColor}">
+                    <div class="owner-update-card" data-owner="${safeName}" style="border-left-color:${borderColor}">
                         <div class="owner-update-avatar" style="background:${safeColor}">${initials}</div>
                         <div>
                             <div class="owner-update-name">${safeName}</div>
@@ -1403,6 +1446,52 @@
             container.innerHTML = `
                 <div class="owner-tracker-title">📋 負責人更新狀態（由舊到新）</div>
                 <div class="owner-cards-row">${cards}</div>`;
+
+            // 綁定 tooltip 事件
+            container.querySelectorAll('.owner-update-card').forEach(card => {
+                const ownerName = card.dataset.owner;
+                card.addEventListener('mouseenter', e => _showOwnerTip(ownerName, e.clientX, e.clientY));
+                card.addEventListener('mousemove',  e => _moveOwnerTip(e.clientX, e.clientY));
+                card.addEventListener('mouseleave', _hideOwnerTip);
+            });
+        }
+
+        function _initOwnerTip() {
+            if (document.getElementById('ownerTooltip')) return;
+            const el = document.createElement('div');
+            el.id = 'ownerTooltip';
+            el.className = 'owner-tooltip';
+            document.body.appendChild(el);
+        }
+
+        function _showOwnerTip(name, x, y) {
+            _initOwnerTip();
+            const info = OWNER_INFO[name];
+            if (!info) return;
+            const tip = document.getElementById('ownerTooltip');
+            tip.innerHTML = `
+                <div class="owner-tooltip-name">
+                    ${escapeHtml(info.en)}
+                    <span style="color:var(--gray-600);font-weight:500;font-size:0.82rem;">／ ${escapeHtml(name)}</span>
+                </div>
+                <div class="owner-tooltip-row">📞&nbsp;分機 <strong>${escapeHtml(info.ext)}</strong></div>
+                <div class="owner-tooltip-row">✉️&nbsp;${escapeHtml(info.email)}</div>`;
+            _moveOwnerTip(x, y);
+            tip.classList.add('visible');
+        }
+
+        function _moveOwnerTip(x, y) {
+            const tip = document.getElementById('ownerTooltip');
+            if (!tip) return;
+            const tw = tip.offsetWidth  || 220;
+            const th = tip.offsetHeight || 100;
+            tip.style.left = (x + 16 + tw > window.innerWidth  ? x - tw - 8 : x + 16) + 'px';
+            tip.style.top  = (y + 16 + th > window.innerHeight ? y - th - 8 : y + 16) + 'px';
+        }
+
+        function _hideOwnerTip() {
+            const tip = document.getElementById('ownerTooltip');
+            if (tip) tip.classList.remove('visible');
         }
 
         function downloadTemplate() {
