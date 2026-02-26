@@ -318,7 +318,7 @@
 
         .cards-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 1.5rem;
             background: rgba(255, 255, 255, 0.5);
             padding: 1.5rem;
@@ -439,31 +439,31 @@
         }
 
         .progress-section {
-            padding: 1.5rem;
+            padding: 0.85rem 1.25rem;
             background: var(--gray-50);
         }
 
         .progress-bar-container {
             position: relative;
-            height: 60px;
-            margin-bottom: 1rem;
+            height: 44px;
+            margin-bottom: 0.5rem;
         }
 
         .progress-track {
             position: absolute;
-            top: 25px;
+            top: 18px;
             left: 0;
             right: 0;
-            height: 4px;
+            height: 3px;
             background: var(--gray-200);
             border-radius: 2px;
         }
 
         .progress-fill {
             position: absolute;
-            top: 25px;
+            top: 18px;
             left: 0;
-            height: 4px;
+            height: 3px;
             background: linear-gradient(90deg, var(--primary), var(--secondary));
             border-radius: 2px;
             transition: width 0.6s ease;
@@ -482,27 +482,27 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.25rem;
         }
 
         .node-dot {
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
             background: var(--gray-300);
-            border: 3px solid white;
+            border: 2px solid white;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
         }
 
         .node-dot.active {
             background: var(--primary);
-            width: 16px;
-            height: 16px;
+            width: 12px;
+            height: 12px;
         }
 
         .node-label {
-            font-size: 1rem;
+            font-size: 0.75rem;
             color: var(--gray-600);
             font-weight: 600;
             white-space: nowrap;
@@ -513,8 +513,8 @@
         }
 
         .history-section {
-            padding: 1.5rem;
-            max-height: 200px;
+            padding: 1rem 1.5rem;
+            max-height: 280px;
             overflow-y: auto;
         }
 
@@ -575,6 +575,84 @@
             background: var(--gray-500);
         }
 
+        .owner-tracker {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .owner-tracker-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 1rem;
+        }
+
+        .owner-cards-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.65rem;
+        }
+
+        .owner-update-card {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            padding: 0.6rem 0.9rem;
+            background: var(--gray-50);
+            border-radius: 12px;
+            border-left: 4px solid;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .owner-update-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .owner-update-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .owner-update-name {
+            font-weight: 700;
+            font-size: 0.88rem;
+            color: var(--gray-800);
+            white-space: nowrap;
+        }
+
+        .owner-update-date {
+            font-size: 0.75rem;
+            font-family: 'Space Mono', monospace;
+            color: var(--gray-600);
+            margin-top: 0.1rem;
+            white-space: nowrap;
+        }
+
+        .owner-update-days {
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 0.2rem 0.55rem;
+            border-radius: 6px;
+            white-space: nowrap;
+            margin-left: 0.25rem;
+        }
+
         @media (max-width: 768px) {
             body { padding: 1rem; }
             h1 { font-size: 1.75rem; }
@@ -589,9 +667,8 @@
     <div class="container">
         <header>
             <div class="header-top">
-                <div style="display: flex; align-items: center; gap: 1rem;">
+                <div>
                     <h1>🎯 RD9產品開發進度戰情室</h1>
-                    <span id="lastUpdateDate" style="font-size: 0.9rem; color: var(--gray-600); font-weight: 500; white-space: nowrap;"></span>
                 </div>
                 <div class="upload-section">
                     <button onclick="reloadGoogleSheets()" class="btn btn-warning" id="reloadBtn">
@@ -643,6 +720,7 @@
                         <option value="洽詢">洽詢</option>
                         <option value="發售">發售</option>
                         <option value="停產">停產</option>
+                        <option value="暫停出貨">暫停出貨</option>
                     </select>
                     <select id="stageFilter" onchange="filterProducts()">
                         <option value="">全部階段</option>
@@ -681,6 +759,8 @@
                 <div class="stat-value" style="color: var(--danger);" id="urgentCount">0</div>
             </div>
         </div>
+
+        <div id="ownerTracker" class="owner-tracker" style="display:none;"></div>
 
         <div id="productsContainer">
             <div class="empty-state">
@@ -779,7 +859,8 @@
             '樣品': '#FFA726',
             '洽詢': '#B0BEC5',
             '發售': '#42A5F5',
-            '停產': '#78909C'
+            '停產': '#78909C',
+            '暫停出貨': '#90A4AE'
         };
 
         // 定義不同類別的階段
@@ -877,41 +958,6 @@
                         throw new Error(data.error);
                     }
 
-                    // 找出最後更新日期
-                    let latestDate = null;
-                    data.forEach(row => {
-                        const updateDate = row['最後更新日期'];
-                        if (updateDate) {
-                            // 處理日期格式（可能是字串或日期物件）
-                            let dateValue;
-                            if (typeof updateDate === 'string') {
-                                dateValue = new Date(updateDate);
-                            } else if (updateDate instanceof Date) {
-                                dateValue = updateDate;
-                            } else if (typeof updateDate === 'number') {
-                                // Excel 日期序號轉換
-                                dateValue = new Date((updateDate - 25569) * 86400 * 1000);
-                            }
-                            
-                            if (dateValue && !isNaN(dateValue.getTime())) {
-                                if (!latestDate || dateValue > latestDate) {
-                                    latestDate = dateValue;
-                                }
-                            }
-                        }
-                    });
-
-                    // 更新最後更新日期顯示
-                    const lastUpdateElement = document.getElementById('lastUpdateDate');
-                    if (latestDate) {
-                        const year = latestDate.getFullYear();
-                        const month = String(latestDate.getMonth() + 1).padStart(2, '0');
-                        const day = String(latestDate.getDate()).padStart(2, '0');
-                        lastUpdateElement.textContent = `最後更新：${year}/${month}/${day}`;
-                    } else {
-                        lastUpdateElement.textContent = '';
-                    }
-
                     productsData = data.map(row => ({
                         id: row['產品編號'] || '',
                         name: row['產品名稱'] || '',
@@ -937,6 +983,7 @@
                     updateCategoryFilter();
                     renderProducts();
                     updateStats();
+                    updateOwnerTracker();
                 })
                 .catch(error => {
                     clearTimeout(timeoutId);
@@ -1029,40 +1076,6 @@
                             '\n\n請確認使用正確的範本格式。');
                     }
                     
-                    // 找出最後更新日期
-                    let latestDate = null;
-                    jsonData.forEach(row => {
-                        const updateDate = row['最後更新日期'];
-                        if (updateDate) {
-                            let dateValue;
-                            if (typeof updateDate === 'string') {
-                                dateValue = new Date(updateDate);
-                            } else if (updateDate instanceof Date) {
-                                dateValue = updateDate;
-                            } else if (typeof updateDate === 'number') {
-                                // Excel 日期序號轉換
-                                dateValue = new Date((updateDate - 25569) * 86400 * 1000);
-                            }
-                            
-                            if (dateValue && !isNaN(dateValue.getTime())) {
-                                if (!latestDate || dateValue > latestDate) {
-                                    latestDate = dateValue;
-                                }
-                            }
-                        }
-                    });
-
-                    // 更新最後更新日期顯示
-                    const lastUpdateElement = document.getElementById('lastUpdateDate');
-                    if (latestDate) {
-                        const year = latestDate.getFullYear();
-                        const month = String(latestDate.getMonth() + 1).padStart(2, '0');
-                        const day = String(latestDate.getDate()).padStart(2, '0');
-                        lastUpdateElement.textContent = `最後更新：${year}/${month}/${day}`;
-                    } else {
-                        lastUpdateElement.textContent = '';
-                    }
-                    
                     productsData = jsonData.map(row => ({
                         id: row['產品編號'] || '',
                         name: row['產品名稱'] || '',
@@ -1086,7 +1099,8 @@
                     updateCategoryFilter();
                     renderProducts();
                     updateStats();
-                    
+                    updateOwnerTracker();
+
                     console.log('✅ Excel 檔案載入成功，共 ' + productsData.length + ' 筆資料');
                     
                 } catch (error) {
@@ -1221,7 +1235,8 @@
                         <img src="${safeImageUrl}" alt="${safeName}" class="product-image" 
                              onerror="this.src='https://via.placeholder.com/80?text=No+Image'">
                         <div class="product-info">
-                            <div class="product-title">${safeId}</div>
+                            <div class="product-title">${safeName}</div>
+                            ${safeId ? `<div style="font-size:1.05rem; color:var(--gray-600); font-weight:700; font-family:'Space Mono',monospace; margin-bottom:0.4rem;">${safeId}</div>` : ''}
                             <div class="product-desc">${safeDescription}</div>
                             <div class="status-row">
                                 <span class="priority-tag priority-${safePriority}">${safePriority}</span>
@@ -1312,8 +1327,86 @@
             document.getElementById('urgentCount').textContent = urgent;
         }
 
+        function parseDate(value) {
+            if (!value) return null;
+            let d;
+            if (typeof value === 'string') {
+                d = new Date(value);
+            } else if (value instanceof Date) {
+                d = value;
+            } else if (typeof value === 'number') {
+                d = new Date((value - 25569) * 86400 * 1000);
+            }
+            return (d && !isNaN(d.getTime())) ? d : null;
+        }
+
+        function updateOwnerTracker() {
+            const container = document.getElementById('ownerTracker');
+            if (!container) return;
+
+            // 彙整每位負責人1的最新更新日期
+            const ownerMap = {};
+            productsData.forEach(p => {
+                if (!p.owner1) return;
+                const d = parseDate(p.lastUpdate);
+                if (!d) return;
+                if (!ownerMap[p.owner1] || d > ownerMap[p.owner1].date) {
+                    ownerMap[p.owner1] = { date: d, color: p.owner1Color || '#6b7280' };
+                }
+            });
+
+            const entries = Object.entries(ownerMap);
+            if (entries.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+
+            // 依更新日期由舊到新排序（最久未更新的排最前面）
+            entries.sort((a, b) => a[1].date - b[1].date);
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            let cards = '';
+            entries.forEach(([name, info]) => {
+                const days = Math.floor((today - info.date) / 86400000);
+                const dateStr = `${info.date.getFullYear()}/${String(info.date.getMonth() + 1).padStart(2, '0')}/${String(info.date.getDate()).padStart(2, '0')}`;
+
+                let borderColor, pillBg, pillColor;
+                if (days <= 14) {
+                    borderColor = 'var(--success)';
+                    pillBg = '#d1fae5'; pillColor = '#065f46';
+                } else if (days <= 30) {
+                    borderColor = 'var(--warning)';
+                    pillBg = '#fef3c7'; pillColor = '#92400e';
+                } else {
+                    borderColor = 'var(--danger)';
+                    pillBg = '#fee2e2'; pillColor = '#991b1b';
+                }
+
+                const safeName = escapeHtml(name);
+                const safeColor = escapeHtml(info.color);
+                const initials = escapeHtml(getInitials(name));
+
+                cards += `
+                    <div class="owner-update-card" style="border-left-color:${borderColor}">
+                        <div class="owner-update-avatar" style="background:${safeColor}">${initials}</div>
+                        <div>
+                            <div class="owner-update-name">${safeName}</div>
+                            <div class="owner-update-date">${dateStr}</div>
+                        </div>
+                        <div class="owner-update-days" style="background:${pillBg};color:${pillColor}">${days} 天前</div>
+                    </div>`;
+            });
+
+            container.style.display = 'block';
+            container.innerHTML = `
+                <div class="owner-tracker-title">📋 負責人更新狀態（由舊到新）</div>
+                <div class="owner-cards-row">${cards}</div>`;
+        }
+
         function downloadTemplate() {
-            window.open('產品開發進度追蹤範本.xlsx', '_blank');
+            window.open('產品開發進度追蹤_RD9.xlsx', '_blank');
         }
     </script>
 </body>
