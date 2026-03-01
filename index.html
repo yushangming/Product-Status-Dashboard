@@ -34,20 +34,20 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" crossorigin="anonymous" referrerpolicy="no-referrer" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';document.head.appendChild(s);"></script>
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-dark: #1e40af;
-            --secondary: #7c3aed;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --gray-50: #f9fafb;
-            --gray-100: #f3f4f6;
-            --gray-200: #e5e7eb;
-            --gray-300: #d1d5db;
-            --gray-600: #4b5563;
-            --gray-700: #374151;
-            --gray-800: #1f2937;
-            --gray-900: #111827;
+            --primary: #1a3a6e;
+            --primary-dark: #0f2247;
+            --secondary: #b8960c;
+            --success: #1a6b42;
+            --warning: #b8860b;
+            --danger: #8b1a1a;
+            --gray-50: #faf8f4;
+            --gray-100: #f0ece4;
+            --gray-200: #dcd6cb;
+            --gray-300: #c0b8aa;
+            --gray-600: #6b5f52;
+            --gray-700: #4a4038;
+            --gray-800: #2d2520;
+            --gray-900: #1a1510;
         }
 
         * {
@@ -58,7 +58,7 @@
 
         body {
             font-family: 'Noto Sans TC', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(160deg, #0c1929 0%, #152444 50%, #1a2e5a 100%);
             min-height: 100vh;
             padding: 2rem;
             color: var(--gray-900);
@@ -70,12 +70,13 @@
         }
 
         header {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(250, 248, 244, 0.97);
             backdrop-filter: blur(10px);
             border-radius: 20px;
             padding: 2rem;
             margin-bottom: 2rem;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(184, 150, 12, 0.3);
+            border-top: 3px solid #b8960c;
             animation: slideDown 0.6s ease-out;
         }
 
@@ -94,7 +95,7 @@
         h1 {
             font-size: 2.5rem;
             font-weight: 900;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: linear-gradient(135deg, #1a3a6e 0%, #b8960c 60%, #d4af37 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -120,30 +121,32 @@
         }
 
         .btn {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
+            background: linear-gradient(135deg, #1a3a6e, #0f2247);
+            color: #f0e8cc;
             padding: 0.75rem 1.5rem;
             border-radius: 12px;
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s ease;
             display: inline-block;
-            border: none;
+            border: 1px solid rgba(184, 150, 12, 0.4);
             font-family: 'Noto Sans TC', sans-serif;
             font-size: 0.95rem;
         }
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.4);
+            box-shadow: 0 10px 30px rgba(184, 150, 12, 0.35);
+            border-color: #b8960c;
+            background: linear-gradient(135deg, #1e4480, #1a3a6e);
         }
 
         .btn-success {
-            background: linear-gradient(135deg, #10b981, #059669);
+            background: linear-gradient(135deg, #1a6b42, #0f4a2d);
         }
 
         .btn-warning {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
+            background: linear-gradient(135deg, #b8860b, #8b6508);
         }
 
         .btn:disabled {
@@ -168,13 +171,13 @@
         }
 
         .source-google {
-            background: #e8f5e9;
-            color: #2e7d32;
+            background: #e8f0e4;
+            color: #1a5c2e;
         }
 
         .source-excel {
-            background: #e3f2fd;
-            color: #1565c0;
+            background: #e6ecf7;
+            color: #1a3a6e;
         }
 
         .toolbar {
@@ -202,7 +205,7 @@
         .search-box input:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            box-shadow: 0 0 0 3px rgba(26, 58, 110, 0.12);
         }
 
         .search-icon {
@@ -237,14 +240,14 @@
         select:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            box-shadow: 0 0 0 3px rgba(26, 58, 110, 0.12);
         }
 
         .loading {
             display: inline-block;
             width: 20px;
             height: 20px;
-            border: 3px solid rgba(124, 58, 237, 0.3);
+            border: 3px solid rgba(184, 150, 12, 0.25);
             border-radius: 50%;
             border-top-color: var(--secondary);
             animation: spin 1s ease-in-out infinite;
@@ -262,11 +265,12 @@
         }
 
         .stat-card {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(250, 248, 244, 0.97);
             backdrop-filter: blur(10px);
             padding: 1.5rem;
             border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-bottom: 2px solid rgba(184, 150, 12, 0.25);
             animation: fadeIn 0.6s ease-out;
             animation-fill-mode: both;
         }
@@ -302,41 +306,44 @@
         }
 
         .category-header {
-            background: rgba(255, 255, 255, 0.95);
+            background: linear-gradient(135deg, #1a3a6e, #0f2247);
             backdrop-filter: blur(10px);
             padding: 1rem 1.5rem;
             border-radius: 16px 16px 0 0;
             margin-bottom: 0;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.35);
+            border-left: 4px solid #b8960c;
         }
 
         .category-header h2 {
             font-size: 1.5rem;
             font-weight: 700;
-            color: var(--gray-900);
+            color: #f0e8cc;
+            letter-spacing: 0.02em;
         }
 
         .cards-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 1.5rem;
-            background: rgba(255, 255, 255, 0.5);
+            background: rgba(15, 34, 71, 0.3);
             padding: 1.5rem;
             border-radius: 0 0 16px 16px;
         }
 
         .product-card {
-            background: white;
+            background: #faf8f4;
             border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
+            border-top: 2px solid rgba(184, 150, 12, 0.2);
         }
 
         .product-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+            transform: translateY(-6px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(184, 150, 12, 0.3);
         }
 
         .card-header {
@@ -388,11 +395,11 @@
             letter-spacing: 0.05em;
         }
 
-        .priority-緊急 { background: #fee2e2; color: #991b1b; }
-        .priority-重要 { background: #fef3c7; color: #92400e; }
-        .priority-一般 { background: #dbeafe; color: #1e40af; }
-        .priority-次要 { background: #e0e7ff; color: #3730a3; }
-        .priority-暫停 { background: #f3f4f6; color: #6b7280; }
+        .priority-緊急 { background: #f5e0e0; color: #7a1515; border: 1px solid #c9a0a0; }
+        .priority-重要 { background: #f5edda; color: #7a5208; border: 1px solid #c9b080; }
+        .priority-一般 { background: #dce6f5; color: #1a3a6e; border: 1px solid #a0b8d8; }
+        .priority-次要 { background: #e8e6f0; color: #3a3570; border: 1px solid #b0acd0; }
+        .priority-暫停 { background: #ede8e0; color: #5a5040; border: 1px solid #c0b8a8; }
 
         .status-badge {
             display: flex;
@@ -464,7 +471,7 @@
             top: 18px;
             left: 0;
             height: 3px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            background: linear-gradient(90deg, #1a3a6e, #b8960c, #d4af37);
             border-radius: 2px;
             transition: width 0.6s ease;
         }
@@ -496,9 +503,10 @@
         }
 
         .node-dot.active {
-            background: var(--primary);
+            background: #b8960c;
             width: 12px;
             height: 12px;
+            box-shadow: 0 0 6px rgba(184, 150, 12, 0.5);
         }
 
         .node-label {
@@ -535,9 +543,10 @@
         .empty-state {
             text-align: center;
             padding: 4rem 2rem;
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(250, 248, 244, 0.97);
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+            border-top: 3px solid rgba(184, 150, 12, 0.4);
         }
 
         .empty-state-icon {
@@ -576,12 +585,13 @@
         }
 
         .owner-tracker {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(250, 248, 244, 0.97);
             backdrop-filter: blur(10px);
             border-radius: 16px;
             padding: 1.25rem 1.5rem;
             margin-bottom: 2rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-left: 4px solid #b8960c;
         }
 
         .owner-tracker-title {
@@ -655,16 +665,16 @@
 
         .owner-tooltip {
             position: fixed;
-            background: white;
+            background: #faf8f4;
             border-radius: 12px;
             padding: 0.85rem 1rem;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28);
             pointer-events: none;
             z-index: 9999;
             opacity: 0;
             transition: opacity 0.15s ease;
             min-width: 210px;
-            border-top: 3px solid var(--primary);
+            border-top: 3px solid #b8960c;
         }
 
         .owner-tooltip.visible {
@@ -899,12 +909,12 @@
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxNLI-1r1SIWOMw5LHmbqkmJKCXNQUegrrVzcWo2UY7Y28QliEpc9jYVG8J1GEbmRUsCg/exec';
 
         const statusColors = {
-            '研發': '#FFA726',
-            '樣品': '#FFA726',
-            '洽詢': '#B0BEC5',
-            '發售': '#42A5F5',
-            '停產': '#78909C',
-            '暫停出貨': '#90A4AE'
+            '研發': '#b8860b',
+            '樣品': '#c9a227',
+            '洽詢': '#8a7a6a',
+            '發售': '#1a5580',
+            '停產': '#5a4a3a',
+            '暫停出貨': '#7a6a5a'
         };
 
         const OWNER_INFO = {
