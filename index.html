@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <!-- 安全標頭：Content Security Policy -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
@@ -16,38 +16,38 @@
         base-uri 'self';
         form-action 'self';
     ">
-    
+
     <!-- 安全標頭：防止點擊劫持 -->
     <meta http-equiv="X-Frame-Options" content="DENY">
-    
+
     <!-- 安全標頭：防止 MIME 類型嗅探 -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    
+
     <!-- 安全標頭：XSS 保護 -->
     <meta http-equiv="X-XSS-Protection" content="1; mode=block">
-    
+
     <!-- 安全標頭：Referrer Policy -->
     <meta name="referrer" content="strict-origin-when-cross-origin">
-    
+
     <title>RD9產品開發進度戰情室</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" crossorigin="anonymous" referrerpolicy="no-referrer" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';document.head.appendChild(s);"></script>
     <style>
         :root {
-            --primary: #1a3a6e;
-            --primary-dark: #0f2247;
-            --secondary: #b8960c;
-            --success: #1a6b42;
-            --warning: #b8860b;
-            --danger: #8b1a1a;
-            --gray-50: #faf8f4;
-            --gray-100: #f0ece4;
-            --gray-200: #dcd6cb;
-            --gray-300: #c0b8aa;
-            --gray-600: #6b5f52;
-            --gray-700: #4a4038;
-            --gray-800: #2d2520;
-            --gray-900: #1a1510;
+            --primary: #337ab7;
+            --primary-dark: #286090;
+            --secondary: #8B4513;
+            --success: #449d44;
+            --warning: #d97706;
+            --danger: #c9302c;
+            --gray-50: #fafafa;
+            --gray-100: #f5f5f5;
+            --gray-200: #e5e5e5;
+            --gray-300: #d1d1d1;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
         }
 
         * {
@@ -57,11 +57,11 @@
         }
 
         body {
-            font-family: 'Noto Sans TC', sans-serif;
-            background: linear-gradient(160deg, #0c1929 0%, #152444 50%, #1a2e5a 100%);
+            font-family: 'Noto Sans TC', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(180deg, #c8c8c8 0%, #a0a0a0 100%);
             min-height: 100vh;
             padding: 2rem;
-            color: var(--gray-900);
+            color: #374151;
         }
 
         .container {
@@ -70,13 +70,12 @@
         }
 
         header {
-            background: rgba(250, 248, 244, 0.97);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
+            background: linear-gradient(135deg, #8B4513 0%, #5D3A1A 100%);
+            border: 4px solid #3D2A15;
+            border-radius: 16px;
             padding: 2rem;
             margin-bottom: 2rem;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(184, 150, 12, 0.3);
-            border-top: 3px solid #b8960c;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15);
             animation: slideDown 0.6s ease-out;
         }
 
@@ -95,10 +94,8 @@
         h1 {
             font-size: 2.5rem;
             font-weight: 900;
-            background: linear-gradient(135deg, #1a3a6e 0%, #b8960c 60%, #d4af37 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #DEB887;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
             letter-spacing: -0.02em;
         }
 
@@ -120,33 +117,56 @@
             left: -9999px;
         }
 
+        /* Metal button (default) */
         .btn {
-            background: linear-gradient(135deg, #1a3a6e, #0f2247);
-            color: #f0e8cc;
+            background: linear-gradient(180deg, #f5f5f5 0%, #d8d8d8 50%, #b8b8b8 100%);
+            color: #374151;
             padding: 0.75rem 1.5rem;
-            border-radius: 12px;
+            border-radius: 8px;
             cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
+            font-weight: 700;
+            transition: all 0.15s ease;
             display: inline-block;
-            border: 1px solid rgba(184, 150, 12, 0.4);
+            border: 1px solid #888;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.8);
             font-family: 'Noto Sans TC', sans-serif;
             font-size: 0.95rem;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.7);
         }
 
         .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(184, 150, 12, 0.35);
-            border-color: #b8960c;
-            background: linear-gradient(135deg, #1e4480, #1a3a6e);
+            background: linear-gradient(180deg, #ffffff 0%, #e8e8e8 50%, #c8c8c8 100%);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.9);
+        }
+
+        .btn:active {
+            background: linear-gradient(180deg, #b8b8b8 0%, #d8d8d8 50%, #e8e8e8 100%);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+            transform: translateY(1px);
         }
 
         .btn-success {
-            background: linear-gradient(135deg, #1a6b42, #0f4a2d);
+            background: linear-gradient(180deg, #5cb85c 0%, #449d44 50%, #398439 100%);
+            color: white;
+            border: 1px solid #255625;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.3);
+            text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(180deg, #6ac96a 0%, #5cb85c 50%, #449d44 100%);
         }
 
         .btn-warning {
-            background: linear-gradient(135deg, #b8860b, #8b6508);
+            background: linear-gradient(180deg, #f0ad4e 0%, #ec971f 50%, #d58512 100%);
+            color: white;
+            border: 1px solid #985f0d;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.3);
+            text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+        }
+
+        .btn-warning:hover {
+            background: linear-gradient(180deg, #f8c06a 0%, #f0ad4e 50%, #ec971f 100%);
         }
 
         .btn:disabled {
@@ -159,25 +179,28 @@
             align-items: center;
             gap: 0.5rem;
             font-size: 0.85rem;
-            color: var(--gray-600);
+            color: #D2B48C;
             margin-bottom: 1rem;
         }
 
         .source-badge {
             padding: 0.25rem 0.75rem;
-            border-radius: 6px;
-            font-weight: 600;
+            border-radius: 4px;
+            font-weight: 700;
             font-size: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
         }
 
         .source-google {
-            background: #e8f0e4;
-            color: #1a5c2e;
+            background: linear-gradient(180deg, #5cb85c 0%, #398439 100%);
+            color: white;
+            border: 1px solid #255625;
         }
 
         .source-excel {
-            background: #e6ecf7;
-            color: #1a3a6e;
+            background: linear-gradient(180deg, #337ab7 0%, #204d74 100%);
+            color: white;
+            border: 1px solid #122b40;
         }
 
         .toolbar {
@@ -195,17 +218,24 @@
         .search-box input {
             width: 100%;
             padding: 0.75rem 1rem 0.75rem 2.5rem;
-            border: 2px solid var(--gray-200);
-            border-radius: 12px;
+            background: #fff;
+            border: 1px solid #999;
+            border-radius: 6px;
             font-size: 0.95rem;
-            transition: all 0.3s ease;
+            color: #374151;
+            transition: all 0.2s ease;
             font-family: 'Noto Sans TC', sans-serif;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.15), inset 0 0 0 1px rgba(0,0,0,0.05);
+        }
+
+        .search-box input::placeholder {
+            color: #9ca3af;
         }
 
         .search-box input:focus {
             outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(26, 58, 110, 0.12);
+            border-color: #337ab7;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.12), 0 0 0 2px rgba(51,122,183,0.25);
         }
 
         .search-icon {
@@ -213,7 +243,7 @@
             left: 0.75rem;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--gray-600);
+            color: #9ca3af;
         }
 
         .filter-group {
@@ -224,32 +254,34 @@
 
         select {
             padding: 0.75rem 1rem;
-            border: 2px solid var(--gray-200);
-            border-radius: 12px;
-            background: white;
+            background: linear-gradient(180deg, #ffffff 0%, #f0f0f0 100%);
+            border: 1px solid #999;
+            border-radius: 6px;
+            color: #374151;
             cursor: pointer;
             font-family: 'Noto Sans TC', sans-serif;
             font-size: 0.95rem;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(255,255,255,0.8);
         }
 
         select:hover {
-            border-color: var(--primary);
+            border-color: #337ab7;
         }
 
         select:focus {
             outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(26, 58, 110, 0.12);
+            border-color: #337ab7;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.08), 0 0 0 2px rgba(51,122,183,0.25);
         }
 
         .loading {
             display: inline-block;
             width: 20px;
             height: 20px;
-            border: 3px solid rgba(184, 150, 12, 0.25);
+            border: 3px solid rgba(139,69,19,0.3);
             border-radius: 50%;
-            border-top-color: var(--secondary);
+            border-top-color: #8B4513;
             animation: spin 1s ease-in-out infinite;
         }
 
@@ -265,14 +297,19 @@
         }
 
         .stat-card {
-            background: rgba(250, 248, 244, 0.97);
-            backdrop-filter: blur(10px);
+            background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(235,235,230,0.95) 100%);
+            border: 1px solid rgba(0,0,0,0.18);
+            border-radius: 12px;
             padding: 1.5rem;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            border-bottom: 2px solid rgba(184, 150, 12, 0.25);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,1), inset 0 -1px 0 rgba(0,0,0,0.05);
             animation: fadeIn 0.6s ease-out;
             animation-fill-mode: both;
+            transition: all 0.2s ease;
+        }
+
+        .stat-card:hover {
+            box-shadow: 0 6px 14px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,1);
+            transform: translateY(-2px);
         }
 
         .stat-card:nth-child(1) { animation-delay: 0.1s; }
@@ -286,18 +323,20 @@
         }
 
         .stat-label {
-            font-size: 0.85rem;
-            color: var(--gray-600);
+            font-size: 0.8rem;
+            color: #6b7280;
             margin-bottom: 0.5rem;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-weight: 600;
+            letter-spacing: 0.08em;
+            font-weight: 700;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.8);
         }
 
         .stat-value {
             font-size: 2rem;
             font-weight: 900;
             font-family: 'Space Mono', monospace;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
 
         .category-section {
@@ -306,60 +345,67 @@
         }
 
         .category-header {
-            background: linear-gradient(135deg, #1a3a6e, #0f2247);
-            backdrop-filter: blur(10px);
-            padding: 1rem 1.5rem;
-            border-radius: 16px 16px 0 0;
+            background: linear-gradient(135deg, #8B4513 0%, #5D3A1A 100%);
+            border: 3px solid #3D2A15;
+            border-bottom: none;
+            padding: 0.9rem 1.5rem;
+            border-radius: 12px 12px 0 0;
             margin-bottom: 0;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.35);
-            border-left: 4px solid #b8960c;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.3);
         }
 
         .category-header h2 {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             font-weight: 700;
-            color: #f0e8cc;
-            letter-spacing: 0.02em;
+            color: #DEB887;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
 
         .cards-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 1.5rem;
-            background: rgba(15, 34, 71, 0.3);
+            background: #FFFEF0;
+            background-image: repeating-linear-gradient(transparent, transparent 27px, #e8e4d8 28px);
+            border: 3px solid #8B7355;
+            border-top: none;
             padding: 1.5rem;
-            border-radius: 0 0 16px 16px;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.2);
         }
 
         .product-card {
-            background: #faf8f4;
-            border-radius: 16px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(242,240,235,0.95) 100%);
+            border: 1px solid rgba(0,0,0,0.18);
+            border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,1);
+            transition: all 0.2s ease;
             cursor: pointer;
-            border-top: 2px solid rgba(184, 150, 12, 0.2);
         }
 
         .product-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(184, 150, 12, 0.3);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,1);
+            transform: translateY(-4px);
         }
 
         .card-header {
             padding: 1.5rem;
             display: flex;
             gap: 1rem;
-            border-bottom: 2px solid var(--gray-100);
+            border-bottom: 1px solid #d1c8b8;
+            background: linear-gradient(180deg, #ffffff 0%, #f5f2ea 100%);
         }
 
         .product-image {
             width: 80px;
             height: 80px;
             object-fit: contain;
-            border-radius: 12px;
-            background: var(--gray-50);
+            border-radius: 8px;
+            background: linear-gradient(145deg, #e8e8e8, #d0d0d0);
             padding: 0.5rem;
+            border: 1px solid #bbb;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.8);
         }
 
         .product-info {
@@ -367,15 +413,15 @@
         }
 
         .product-title {
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
-            color: var(--gray-900);
+            color: #1f2937;
         }
 
         .product-desc {
             font-size: 0.9rem;
-            color: var(--gray-600);
+            color: #6b7280;
             margin-bottom: 0.75rem;
         }
 
@@ -387,42 +433,80 @@
         }
 
         .priority-tag {
-            padding: 0.35rem 0.75rem;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            font-weight: 600;
+            padding: 0.3rem 0.65rem;
+            border-radius: 5px;
+            font-size: 0.78rem;
+            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
 
-        .priority-緊急 { background: #f5e0e0; color: #7a1515; border: 1px solid #c9a0a0; }
-        .priority-重要 { background: #f5edda; color: #7a5208; border: 1px solid #c9b080; }
-        .priority-一般 { background: #dce6f5; color: #1a3a6e; border: 1px solid #a0b8d8; }
-        .priority-次要 { background: #e8e6f0; color: #3a3570; border: 1px solid #b0acd0; }
-        .priority-暫停 { background: #ede8e0; color: #5a5040; border: 1px solid #c0b8a8; }
+        .priority-緊急 {
+            background: linear-gradient(180deg, #d9534f 0%, #c9302c 100%);
+            color: white;
+            border: 1px solid #ac2925;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+            text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+        }
+
+        .priority-重要 {
+            background: linear-gradient(180deg, #f0ad4e 0%, #d58512 100%);
+            color: white;
+            border: 1px solid #985f0d;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+            text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+        }
+
+        .priority-一般 {
+            background: linear-gradient(180deg, #337ab7 0%, #204d74 100%);
+            color: white;
+            border: 1px solid #122b40;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+            text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+        }
+
+        .priority-次要 {
+            background: linear-gradient(180deg, #777 0%, #555 100%);
+            color: white;
+            border: 1px solid #444;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.15);
+            text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+        }
+
+        .priority-暫停 {
+            background: linear-gradient(180deg, #aaa 0%, #888 100%);
+            color: #333;
+            border: 1px solid #777;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.5);
+        }
 
         .status-badge {
             display: flex;
             align-items: center;
             gap: 0.4rem;
-            padding: 0.35rem 0.75rem;
-            border-radius: 8px;
+            padding: 0.3rem 0.65rem;
+            border-radius: 5px;
             font-size: 0.85rem;
             font-weight: 600;
-            background: var(--gray-100);
+            background: linear-gradient(180deg, #f5f5f5 0%, #e0e0e0 100%);
+            border: 1px solid #aaa;
+            color: #374151;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+            text-shadow: 0 1px 0 rgba(255,255,255,0.7);
         }
 
         .status-dot {
             width: 8px;
             height: 8px;
             border-radius: 50%;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.3);
         }
 
         .release-date {
             font-family: 'Space Mono', monospace;
             font-weight: 700;
-            font-size: 0.9rem;
-            color: var(--primary);
+            font-size: 0.85rem;
+            color: #374151;
         }
 
         .owner-badges {
@@ -441,38 +525,42 @@
             font-size: 0.75rem;
             font-weight: 700;
             color: white;
-            border: 2px solid white;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            border: 2px solid rgba(255,255,255,0.8);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.4);
+            text-shadow: 0 1px 1px rgba(0,0,0,0.3);
         }
 
         .progress-section {
             padding: 0.85rem 1.25rem;
-            background: var(--gray-50);
+            background: linear-gradient(180deg, #f0ece4 0%, #e8e4d8 100%);
+            border-top: 1px solid #d1c8b8;
         }
 
         .progress-bar-container {
             position: relative;
-            height: 44px;
+            height: 48px;
             margin-bottom: 0.5rem;
         }
 
         .progress-track {
             position: absolute;
-            top: 18px;
+            top: 19px;
             left: 0;
             right: 0;
-            height: 3px;
-            background: var(--gray-200);
-            border-radius: 2px;
+            height: 5px;
+            background: #c0bfb8;
+            border-radius: 3px;
+            box-shadow: inset 0 2px 3px rgba(0,0,0,0.3), inset 0 -1px 1px rgba(255,255,255,0.5);
         }
 
         .progress-fill {
             position: absolute;
-            top: 18px;
+            top: 19px;
             left: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #1a3a6e, #b8960c, #d4af37);
-            border-radius: 2px;
+            height: 5px;
+            background: linear-gradient(180deg, #5cb85c 0%, #398439 100%);
+            border-radius: 3px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.3);
             transition: width 0.6s ease;
         }
 
@@ -489,48 +577,52 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0.25rem;
+            gap: 0.3rem;
         }
 
         .node-dot {
-            width: 10px;
-            height: 10px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
-            background: var(--gray-300);
-            border: 2px solid white;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(145deg, #e8e8e8, #c0c0c0);
+            border: 1px solid #999;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.8);
             transition: all 0.3s ease;
         }
 
         .node-dot.active {
-            background: #b8960c;
-            width: 12px;
-            height: 12px;
-            box-shadow: 0 0 6px rgba(184, 150, 12, 0.5);
+            background: linear-gradient(145deg, #5cb85c, #449d44);
+            border-color: #2d6e2d;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.3);
+            width: 14px;
+            height: 14px;
         }
 
         .node-label {
-            font-size: 0.75rem;
-            color: var(--gray-600);
+            font-size: 0.72rem;
+            color: #9ca3af;
             font-weight: 600;
             white-space: nowrap;
         }
 
         .node-label.active {
-            color: var(--gray-900);
+            color: #374151;
+            font-weight: 700;
         }
 
         .history-section {
             padding: 1rem 1.5rem;
             max-height: 280px;
             overflow-y: auto;
+            background: #FFFEF0;
+            background-image: repeating-linear-gradient(transparent, transparent 23px, #e8e4d8 24px);
         }
 
         .history-item {
-            padding: 0.75rem 0;
-            border-bottom: 1px solid var(--gray-200);
+            padding: 0.6rem 0;
+            border-bottom: 1px solid #e8e4d8;
             font-size: 0.9rem;
-            color: var(--gray-700);
+            color: #374151;
             line-height: 1.6;
             white-space: pre-wrap;
             word-wrap: break-word;
@@ -543,10 +635,10 @@
         .empty-state {
             text-align: center;
             padding: 4rem 2rem;
-            background: rgba(250, 248, 244, 0.97);
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
-            border-top: 3px solid rgba(184, 150, 12, 0.4);
+            background: linear-gradient(180deg, rgba(255,255,255,0.97) 0%, rgba(240,238,232,0.95) 100%);
+            border: 1px solid rgba(0,0,0,0.15);
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,1);
         }
 
         .empty-state-icon {
@@ -557,11 +649,11 @@
         .empty-state h3 {
             font-size: 1.5rem;
             margin-bottom: 0.5rem;
-            color: var(--gray-900);
+            color: #1f2937;
         }
 
         .empty-state p {
-            color: var(--gray-600);
+            color: #6b7280;
             margin-bottom: 1.5rem;
         }
 
@@ -571,36 +663,38 @@
         }
 
         ::-webkit-scrollbar-track {
-            background: var(--gray-100);
+            background: #d0ccc0;
             border-radius: 4px;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
         }
 
         ::-webkit-scrollbar-thumb {
-            background: var(--gray-400);
+            background: linear-gradient(180deg, #aaa 0%, #888 100%);
             border-radius: 4px;
+            border: 1px solid #777;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: var(--gray-500);
+            background: linear-gradient(180deg, #bbb 0%, #999 100%);
         }
 
         .owner-tracker {
-            background: rgba(250, 248, 244, 0.97);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
+            background: linear-gradient(90deg, #DEB887 0%, #CD853F 50%, #DEB887 100%);
+            border: 3px solid #8B7355;
+            border-radius: 12px;
             padding: 1.25rem 1.5rem;
             margin-bottom: 2rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            border-left: 4px solid #b8960c;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.4);
         }
 
         .owner-tracker-title {
             font-size: 0.8rem;
             font-weight: 700;
-            color: var(--gray-600);
+            color: #5D3A1A;
             text-transform: uppercase;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.08em;
             margin-bottom: 1rem;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.5);
         }
 
         .owner-cards-row {
@@ -614,15 +708,19 @@
             align-items: center;
             gap: 0.65rem;
             padding: 0.6rem 0.9rem;
-            background: var(--gray-50);
-            border-radius: 12px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(240,235,225,0.85) 100%);
+            border-radius: 8px;
             border-left: 4px solid;
+            border-top: 1px solid rgba(255,255,255,0.8);
+            border-right: 1px solid rgba(0,0,0,0.12);
+            border-bottom: 1px solid rgba(0,0,0,0.12);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.9);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
         .owner-update-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.9);
         }
 
         .owner-update-avatar {
@@ -636,20 +734,22 @@
             font-weight: 700;
             color: white;
             flex-shrink: 0;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.4);
+            border: 2px solid rgba(255,255,255,0.6);
+            text-shadow: 0 1px 1px rgba(0,0,0,0.3);
         }
 
         .owner-update-name {
             font-weight: 700;
             font-size: 0.88rem;
-            color: var(--gray-800);
+            color: #1f2937;
             white-space: nowrap;
         }
 
         .owner-update-date {
             font-size: 0.75rem;
             font-family: 'Space Mono', monospace;
-            color: var(--gray-600);
+            color: #6b7280;
             margin-top: 0.1rem;
             white-space: nowrap;
         }
@@ -658,23 +758,25 @@
             font-size: 0.72rem;
             font-weight: 700;
             padding: 0.2rem 0.55rem;
-            border-radius: 6px;
+            border-radius: 4px;
             white-space: nowrap;
             margin-left: 0.25rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.4);
         }
 
         .owner-tooltip {
             position: fixed;
-            background: #faf8f4;
-            border-radius: 12px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.99) 0%, rgba(242,240,235,0.97) 100%);
+            border: 1px solid rgba(0,0,0,0.18);
+            border-top: 3px solid #8B4513;
+            border-radius: 8px;
             padding: 0.85rem 1rem;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,1);
             pointer-events: none;
             z-index: 9999;
             opacity: 0;
             transition: opacity 0.15s ease;
             min-width: 210px;
-            border-top: 3px solid #b8960c;
         }
 
         .owner-tooltip.visible {
@@ -684,7 +786,7 @@
         .owner-tooltip-name {
             font-weight: 700;
             font-size: 0.95rem;
-            color: var(--gray-900);
+            color: #1f2937;
             margin-bottom: 0.55rem;
         }
 
@@ -693,7 +795,7 @@
             align-items: center;
             gap: 0.4rem;
             font-size: 0.82rem;
-            color: var(--gray-700);
+            color: #6b7280;
             margin-top: 0.3rem;
         }
 
@@ -729,12 +831,12 @@
                     </button>
                 </div>
             </div>
-            
+
             <div class="data-source-info">
                 <span>資料來源：</span>
                 <span class="source-badge" id="sourceIndicator">載入中...</span>
             </div>
-            
+
             <div class="toolbar">
                 <div class="search-box">
                     <span class="search-icon">🔍</span>
@@ -821,7 +923,7 @@
         // ========================================
         // 安全工具函數
         // ========================================
-        
+
         // 1. HTML 轉義（防止 XSS 攻擊）
         function escapeHtml(text) {
             if (text === null || text === undefined) return '';
@@ -829,7 +931,7 @@
             div.textContent = text;
             return div.innerHTML;
         }
-        
+
         // 2. URL 驗證
         function isValidUrl(url) {
             try {
@@ -839,7 +941,7 @@
                 return false;
             }
         }
-        
+
         // 3. 請求限流器（防止 API 濫用）
         class RateLimiter {
             constructor(maxRequests = 10, windowMs = 60000) {
@@ -847,28 +949,28 @@
                 this.windowMs = windowMs;
                 this.requests = [];
             }
-            
+
             canMakeRequest() {
                 const now = Date.now();
                 this.requests = this.requests.filter(time => now - time < this.windowMs);
-                
+
                 if (this.requests.length >= this.maxRequests) {
                     const remainingTime = Math.ceil(this.getRemainingTime() / 1000);
                     console.warn(`⚠️ API 請求過於頻繁，請等待 ${remainingTime} 秒後重試`);
                     return false;
                 }
-                
+
                 this.requests.push(now);
                 return true;
             }
-            
+
             getRemainingTime() {
                 if (this.requests.length === 0) return 0;
                 const oldestRequest = Math.min(...this.requests);
                 return Math.max(0, this.windowMs - (Date.now() - oldestRequest));
             }
         }
-        
+
         // 4. CSS 顏色值驗證（防止 CSS Injection）
         function sanitizeCssColor(color) {
             if (!color) return '#999999';
@@ -885,36 +987,36 @@
             if (!url || url.trim() === '') {
                 return 'https://via.placeholder.com/80?text=No+Image';
             }
-            
+
             // 只允許 HTTPS 圖片
             if (!isValidUrl(url)) {
                 console.warn('⚠️ 不安全的圖片 URL 已被封鎖:', url);
                 return 'https://via.placeholder.com/80?text=Invalid+URL';
             }
-            
+
             return url;
         }
-        
+
         // ========================================
         // 應用程式主體
         // ========================================
-        
+
         let productsData = [];
         let dataSource = 'google';
-        
+
         // 初始化請求限流器（每分鐘最多 10 次請求）
         const apiLimiter = new RateLimiter(10, 60000);
-        
+
         // Google Apps Script 部署網址（從環境變數讀取或使用預設值）
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxNLI-1r1SIWOMw5LHmbqkmJKCXNQUegrrVzcWo2UY7Y28QliEpc9jYVG8J1GEbmRUsCg/exec';
 
         const statusColors = {
-            '研發': '#b8860b',
-            '樣品': '#c9a227',
-            '洽詢': '#8a7a6a',
-            '發售': '#1a5580',
-            '停產': '#5a4a3a',
-            '暫停出貨': '#7a6a5a'
+            '研發': '#FFA726',
+            '樣品': '#FFA726',
+            '洽詢': '#B0BEC5',
+            '發售': '#42A5F5',
+            '停產': '#78909C',
+            '暫停出貨': '#90A4AE'
         };
 
         const OWNER_INFO = {
@@ -929,26 +1031,26 @@
         // 定義不同類別的階段
         const productStages = ['規劃', '研發', '驗証', '量產', '上市'];
         const projectStages = ['現勘', '討論', '報價', '執行', '結案'];
-        
+
         // 根據產品名稱獲取對應的階段（如果產品名稱是"專案"，則使用專案階段）
         function getStagesForCategory(category, productName) {
             return (productName === '專案') ? projectStages : productStages;
         }
-        
+
         // 為了向後兼容，保留 stages 變數（預設為產品階段）
         const stages = productStages;
 
         window.addEventListener('DOMContentLoaded', function() {
             // 先顯示介面，資料載入設為異步
             console.log('📱 頁面載入完成，準備載入資料...');
-            
+
             // 檢查 XLSX 函式庫是否已載入（但不阻塞）
             if (typeof XLSX === 'undefined') {
                 console.warn('⚠️ XLSX 函式庫尚未載入，Excel 上傳功能暫時無法使用');
             } else {
                 console.log('✅ XLSX 函式庫載入成功');
             }
-            
+
             // 使用 setTimeout 讓頁面先渲染，然後異步載入資料
             setTimeout(function() {
                 loadGoogleSheets();
@@ -957,7 +1059,7 @@
 
         function updateSourceIndicator(source) {
             const indicator = document.getElementById('sourceIndicator');
-            
+
             if (source === 'google') {
                 indicator.textContent = 'Google Sheets (自動同步)';
                 indicator.className = 'source-badge source-google';
@@ -972,7 +1074,7 @@
 
         function loadGoogleSheets() {
             if (dataSource !== 'google') return;
-            
+
             // 檢查請求限流
             if (!apiLimiter.canMakeRequest()) {
                 const remainingTime = Math.ceil(apiLimiter.getRemainingTime() / 1000);
@@ -983,9 +1085,9 @@
                 `);
                 return;
             }
-            
+
             updateSourceIndicator('loading');
-            
+
             // 顯示載入中的提示（不阻塞頁面）
             const container = document.getElementById('productsContainer');
             if (container) {
@@ -997,15 +1099,15 @@
                     </div>
                 `;
             }
-            
+
             // 添加 origin 參數進行來源驗證
             const apiUrl = APPS_SCRIPT_URL + '?origin=' + encodeURIComponent(window.location.origin);
-            
+
             // 添加超時控制（30秒）
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 30000);
-            
-            fetch(apiUrl, { 
+
+            fetch(apiUrl, {
                 signal: controller.signal,
                 cache: 'no-cache' // 避免快取導致的延遲
             })
@@ -1040,7 +1142,7 @@
                         history: row['專案歷程'] || '',
                         lastUpdate: row['最後更新日期'] || ''
                     }));
-                    
+
                     console.log('✅ 成功載入', productsData.length, '筆資料');
                     updateSourceIndicator('google');
                     updateCategoryFilter();
@@ -1051,12 +1153,12 @@
                 .catch(error => {
                     clearTimeout(timeoutId);
                     console.error('❌ Google Sheets 載入失敗:', error);
-                    
+
                     let errorMessage = error.message;
                     if (error.name === 'AbortError') {
                         errorMessage = '載入超時（超過 30 秒）';
                     }
-                    
+
                     showError(`
                         <strong>無法連接到 Google Sheets</strong><br><br>
                         錯誤訊息: ${escapeHtml(errorMessage)}<br><br>
@@ -1091,7 +1193,7 @@
             const validExtensions = ['.xlsx', '.xls'];
             const fileName = file.name.toLowerCase();
             const isValidType = validExtensions.some(ext => fileName.endsWith(ext));
-            
+
             if (!isValidType) {
                 alert('檔案格式錯誤！請上傳 Excel 檔案 (.xlsx 或 .xls)');
                 event.target.value = '';
@@ -1106,39 +1208,39 @@
                 alert('檔案讀取失敗！請確認檔案沒有損壞並重試。');
                 event.target.value = '';
             };
-            
+
             reader.onload = function(e) {
                 try {
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
-                    
+
                     // 檢查工作表是否存在
                     if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
                         throw new Error('Excel 檔案中沒有找到工作表');
                     }
-                    
+
                     const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
                     if (!firstSheet) {
                         throw new Error('無法讀取工作表：' + workbook.SheetNames[0]);
                     }
-                    
+
                     const jsonData = XLSX.utils.sheet_to_json(firstSheet);
-                    
+
                     // 檢查是否有資料
                     if (!jsonData || jsonData.length === 0) {
                         throw new Error('Excel 檔案中沒有資料');
                     }
-                    
+
                     // 驗證必要欄位
                     const requiredColumns = ['產品名稱', '產品類別', '開發階段'];
                     const firstRow = jsonData[0];
                     const missingColumns = requiredColumns.filter(col => !(col in firstRow));
-                    
+
                     if (missingColumns.length > 0) {
-                        throw new Error('Excel 檔案缺少必要欄位：' + missingColumns.join('、') + 
+                        throw new Error('Excel 檔案缺少必要欄位：' + missingColumns.join('、') +
                             '\n\n請確認使用正確的範本格式。');
                     }
-                    
+
                     productsData = jsonData.map(row => ({
                         id: row['產品編號'] || '',
                         name: row['產品名稱'] || '',
@@ -1165,10 +1267,10 @@
                     updateOwnerTracker();
 
                     console.log('✅ Excel 檔案載入成功，共 ' + productsData.length + ' 筆資料');
-                    
+
                 } catch (error) {
                     console.error('Excel 解析錯誤:', error);
-                    alert('檔案解析失敗！\n\n錯誤訊息：' + error.message + 
+                    alert('檔案解析失敗！\n\n錯誤訊息：' + error.message +
                         '\n\n請確認：\n1. 檔案格式正確（.xlsx 或 .xls）\n2. 檔案沒有密碼保護\n3. 包含必要的欄位（產品名稱、產品類別、開發階段）');
                     event.target.value = '';
                     dataSource = 'google';
@@ -1214,7 +1316,7 @@
 
             let filtered = productsData.filter(p => {
                 const matchCategory = !categoryFilter || p.category === categoryFilter;
-                
+
                 // 進度篩選邏輯（支援產品和專案）
                 let matchProgress = true;
                 if (progressFilter === '進行中') {
@@ -1227,12 +1329,12 @@
                     const lastStage = currentStages[currentStages.length - 1];
                     matchProgress = p.stage === lastStage;
                 }
-                
+
                 const matchPriority = !priorityFilter || p.priority === priorityFilter;
                 const matchStatus = !statusFilter || p.status === statusFilter;
                 const matchStage = !stageFilter || p.stage === stageFilter;
-                const matchSearch = !searchTerm || 
-                    p.id.toLowerCase().includes(searchTerm) || 
+                const matchSearch = !searchTerm ||
+                    p.id.toLowerCase().includes(searchTerm) ||
                     p.name.toLowerCase().includes(searchTerm) ||
                     p.description.toLowerCase().includes(searchTerm);
                 return matchCategory && matchProgress && matchPriority && matchStatus && matchStage && matchSearch;
@@ -1298,7 +1400,7 @@
             return `
                 <div class="product-card">
                     <div class="card-header">
-                        <img src="${safeImageUrl}" alt="${safeName}" class="product-image" 
+                        <img src="${safeImageUrl}" alt="${safeName}" class="product-image"
                              onerror="this.src='https://via.placeholder.com/80?text=No+Image'">
                         <div class="product-info">
                             <div class="product-title">${safeName}</div>
@@ -1369,7 +1471,7 @@
 
         function updateStats() {
             const total = productsData.length;
-            
+
             // 進行中的判斷：產品類別的前4個階段，或專案類別的前4個階段
             const ongoing = productsData.filter(p => {
                 const currentStages = getStagesForCategory(p.category, p.name);
@@ -1377,14 +1479,14 @@
                 // 只要不是最後一個階段，就算進行中
                 return stageIndex >= 0 && stageIndex < currentStages.length - 1;
             }).length;
-            
+
             // 已完成的判斷：產品的「上市」或專案的「結案」
             const completed = productsData.filter(p => {
                 const currentStages = getStagesForCategory(p.category, p.name);
                 const lastStage = currentStages[currentStages.length - 1];
                 return p.stage === lastStage;
             }).length;
-            
+
             const urgent = productsData.filter(p => p.priority === '緊急').length;
 
             document.getElementById('totalCount').textContent = total;
@@ -1441,13 +1543,13 @@
                 let borderColor, pillBg, pillColor;
                 if (days <= 14) {
                     borderColor = 'var(--success)';
-                    pillBg = '#d1fae5'; pillColor = '#065f46';
+                    pillBg = '#d4edda'; pillColor = '#155724';
                 } else if (days <= 30) {
                     borderColor = 'var(--warning)';
-                    pillBg = '#fef3c7'; pillColor = '#92400e';
+                    pillBg = '#fff3cd'; pillColor = '#856404';
                 } else {
                     borderColor = 'var(--danger)';
-                    pillBg = '#fee2e2'; pillColor = '#991b1b';
+                    pillBg = '#f8d7da'; pillColor = '#721c24';
                 }
 
                 const safeName = escapeHtml(name);
