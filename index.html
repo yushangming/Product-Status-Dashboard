@@ -7,18 +7,15 @@
     <!-- 安全標頭：Content Security Policy -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
-        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://script.google.com https://script.googleusercontent.com;
+        script-src 'self' 'unsafe-inline' https://script.google.com https://script.googleusercontent.com;
         style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
         font-src 'self' https://fonts.gstatic.com;
         img-src 'self' https: data:;
         connect-src 'self' https://script.google.com https://script.googleusercontent.com;
-        frame-ancestors 'none';
         base-uri 'self';
         form-action 'self';
     ">
-
-    <!-- 安全標頭：防止點擊劫持 -->
-    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta name="robots" content="noindex, nofollow">
 
     <!-- 安全標頭：防止 MIME 類型嗅探 -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
@@ -31,19 +28,20 @@
 
     <title>RD9產品開發進度戰情室</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" crossorigin="anonymous" referrerpolicy="no-referrer" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';document.head.appendChild(s);"></script>
     <style>
         :root {
-            --primary: #337ab7;
-            --primary-dark: #286090;
-            --secondary: #8B4513;
-            --success: #449d44;
-            --warning: #d97706;
-            --danger: #c9302c;
-            --gray-50: #fafafa;
-            --gray-100: #f5f5f5;
-            --gray-200: #e5e5e5;
-            --gray-300: #d1d1d1;
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #7c3aed;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
             --gray-600: #4b5563;
             --gray-700: #374151;
             --gray-800: #1f2937;
@@ -57,11 +55,16 @@
         }
 
         body {
-            font-family: 'Noto Sans TC', 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(180deg, #c8c8c8 0%, #a0a0a0 100%);
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 2rem;
-            color: #374151;
+            padding: 32px;
+            color: var(--gray-900);
+        }
+
+        /* Mobile full-screen loading overlay */
+        #mobileLoadingOverlay {
+            display: none;
         }
 
         .container {
@@ -70,12 +73,12 @@
         }
 
         header {
-            background: linear-gradient(135deg, #8B4513 0%, #5D3A1A 100%);
-            border: 4px solid #3D2A15;
-            border-radius: 16px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             animation: slideDown 0.6s ease-out;
         }
 
@@ -88,200 +91,254 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .title-group {
+            display: flex;
+            align-items: center;
+            gap: 16px;
         }
 
         h1 {
-            font-size: 2.5rem;
+            font-size: 38px;
             font-weight: 900;
-            color: #DEB887;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        .upload-section {
-            display: flex;
-            gap: 1rem;
+        .last-update-group {
+            display: inline-flex;
             align-items: center;
-            flex-wrap: wrap;
+            gap: 8px;
+            background: linear-gradient(135deg, rgba(37,99,235,0.06), rgba(124,58,237,0.06));
+            border: 1px solid rgba(37,99,235,0.15);
+            border-radius: 10px;
+            padding: 8px 14px;
         }
 
-        .file-input-wrapper {
-            position: relative;
-            overflow: hidden;
-            display: inline-block;
+        .last-update-text {
+            font-size: 13px;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        .file-input-wrapper input[type=file] {
-            position: absolute;
-            left: -9999px;
+        .tab-group {
+            display: flex;
+            gap: 0;
+            align-items: center;
+            background: var(--gray-200);
+            border-radius: 12px;
+            padding: 4px;
         }
 
-        /* Metal button (default) */
-        .btn {
-            background: linear-gradient(180deg, #f5f5f5 0%, #d8d8d8 50%, #b8b8b8 100%);
-            color: #374151;
-            padding: 0.75rem 1.5rem;
+        .tab-btn {
+            background: transparent;
+            color: var(--gray-500);
+            padding: 9px 18px;
             border-radius: 8px;
             cursor: pointer;
-            font-weight: 700;
-            transition: all 0.15s ease;
-            display: inline-block;
-            border: 1px solid #888;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.8);
+            font-weight: 600;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
             font-family: 'Noto Sans TC', sans-serif;
-            font-size: 0.95rem;
-            text-shadow: 0 1px 0 rgba(255,255,255,0.7);
+            font-size: 14px;
+            white-space: nowrap;
+            letter-spacing: 0.3px;
         }
 
-        .btn:hover {
-            background: linear-gradient(180deg, #ffffff 0%, #e8e8e8 50%, #c8c8c8 100%);
-            box-shadow: 0 3px 6px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.9);
+        .tab-btn:hover {
+            color: var(--primary);
+            background: rgba(37, 99, 235, 0.07);
+            border-color: rgba(37, 99, 235, 0.2);
         }
 
-        .btn:active {
-            background: linear-gradient(180deg, #b8b8b8 0%, #d8d8d8 50%, #e8e8e8 100%);
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
-            transform: translateY(1px);
+        .tab-btn.active {
+            background: white;
+            color: var(--primary);
+            border-color: rgba(37, 99, 235, 0.35);
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06);
         }
 
-        .btn-success {
-            background: linear-gradient(180deg, #5cb85c 0%, #449d44 50%, #398439 100%);
-            color: white;
-            border: 1px solid #255625;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.3);
-            text-shadow: 0 1px 1px rgba(0,0,0,0.3);
-        }
-
-        .btn-success:hover {
-            background: linear-gradient(180deg, #6ac96a 0%, #5cb85c 50%, #449d44 100%);
-        }
-
-        .btn-warning {
-            background: linear-gradient(180deg, #f0ad4e 0%, #ec971f 50%, #d58512 100%);
-            color: white;
-            border: 1px solid #985f0d;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.3);
-            text-shadow: 0 1px 1px rgba(0,0,0,0.3);
-        }
-
-        .btn-warning:hover {
-            background: linear-gradient(180deg, #f8c06a 0%, #f0ad4e 50%, #ec971f 100%);
-        }
-
-        .btn:disabled {
-            opacity: 0.6;
+        .tab-btn:disabled {
+            opacity: 0.4;
             cursor: not-allowed;
         }
 
-        .data-source-info {
+        .header-bottom {
+            display: flex;
+            align-items: stretch;
+            gap: 12px;
+        }
+
+        .stats-grid {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .stats-card {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: 12px;
+            padding: 10px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            transition: all 0.2s ease;
+            min-width: 90px;
+        }
+
+        .stats-card:hover {
+            background: white;
+            border-color: var(--gray-300);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .stats-label {
+            font-size: 11px;
+            color: var(--gray-600);
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
+
+        .stats-value {
+            font-size: 22px;
+            font-weight: 900;
+            font-family: 'Space Mono', monospace;
+            line-height: 1.1;
+        }
+
+        .header-toolbar {
+            flex: 1;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            font-size: 0.85rem;
-            color: #D2B48C;
-            margin-bottom: 1rem;
-        }
-
-        .source-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 4px;
-            font-weight: 700;
-            font-size: 0.75rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
-        }
-
-        .source-google {
-            background: linear-gradient(180deg, #5cb85c 0%, #398439 100%);
-            color: white;
-            border: 1px solid #255625;
-        }
-
-        .source-excel {
-            background: linear-gradient(180deg, #337ab7 0%, #204d74 100%);
-            color: white;
-            border: 1px solid #122b40;
-        }
-
-        .toolbar {
-            display: flex;
-            gap: 1rem;
+            gap: 12px;
             flex-wrap: wrap;
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: 16px;
+            padding: 12px 16px;
         }
 
         .search-box {
             flex: 1;
-            min-width: 250px;
+            min-width: 220px;
             position: relative;
         }
 
         .search-box input {
             width: 100%;
-            padding: 0.75rem 1rem 0.75rem 2.5rem;
-            background: #fff;
-            border: 1px solid #999;
-            border-radius: 6px;
-            font-size: 0.95rem;
-            color: #374151;
-            transition: all 0.2s ease;
+            padding: 10px 14px 10px 38px;
+            border: 1.5px solid var(--gray-200);
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.25s ease;
             font-family: 'Noto Sans TC', sans-serif;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.15), inset 0 0 0 1px rgba(0,0,0,0.05);
+            background: white;
         }
 
-        .search-box input::placeholder {
-            color: #9ca3af;
+        .search-box input:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
         }
 
         .search-box input:focus {
             outline: none;
-            border-color: #337ab7;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.12), 0 0 0 2px rgba(51,122,183,0.25);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
         .search-icon {
             position: absolute;
-            left: 0.75rem;
+            left: 11px;
             top: 50%;
             transform: translateY(-50%);
-            color: #9ca3af;
+            color: var(--gray-400);
+            display: flex;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .toolbar-divider {
+            width: 1px;
+            height: 28px;
+            background: var(--gray-200);
+            flex-shrink: 0;
         }
 
         .filter-group {
             display: flex;
-            gap: 0.75rem;
+            gap: 8px;
             flex-wrap: wrap;
+            align-items: center;
         }
 
         select {
-            padding: 0.75rem 1rem;
-            background: linear-gradient(180deg, #ffffff 0%, #f0f0f0 100%);
-            border: 1px solid #999;
-            border-radius: 6px;
-            color: #374151;
+            padding: 10px 14px;
+            border: 1.5px solid var(--gray-200);
+            border-radius: 10px;
+            background: white;
             cursor: pointer;
             font-family: 'Noto Sans TC', sans-serif;
-            font-size: 0.95rem;
-            transition: all 0.2s ease;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(255,255,255,0.8);
+            font-size: 14px;
+            transition: all 0.25s ease;
+            color: var(--gray-700);
+        }
+
+        select:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
         }
 
         select:hover {
-            border-color: #337ab7;
+            border-color: var(--primary);
         }
 
         select:focus {
             outline: none;
-            border-color: #337ab7;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.08), 0 0 0 2px rgba(51,122,183,0.25);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .category-section {
+            margin-bottom: 48px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .category-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 16px 24px;
+            border-radius: 16px 16px 0 0;
+            margin-bottom: 0;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .category-header h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--gray-900);
         }
 
         .loading {
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(139,69,19,0.3);
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(124, 58, 237, 0.3);
             border-radius: 50%;
-            border-top-color: #8B4513;
+            border-top-color: var(--secondary);
             animation: spin 1s ease-in-out infinite;
         }
 
@@ -289,624 +346,965 @@
             to { transform: rotate(360deg); }
         }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
+        .empty-state {
+            text-align: center;
+            padding: 64px 32px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
         }
 
-        .stat-card {
-            background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(235,235,230,0.95) 100%);
-            border: 1px solid rgba(0,0,0,0.18);
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,1), inset 0 -1px 0 rgba(0,0,0,0.05);
-            animation: fadeIn 0.6s ease-out;
-            animation-fill-mode: both;
-            transition: all 0.2s ease;
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
         }
 
-        .stat-card:hover {
-            box-shadow: 0 6px 14px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,1);
-            transform: translateY(-2px);
+        .empty-state h3 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: var(--gray-900);
         }
 
-        .stat-card:nth-child(1) { animation-delay: 0.1s; }
-        .stat-card:nth-child(2) { animation-delay: 0.2s; }
-        .stat-card:nth-child(3) { animation-delay: 0.3s; }
-        .stat-card:nth-child(4) { animation-delay: 0.4s; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .stat-label {
-            font-size: 0.8rem;
-            color: #6b7280;
-            margin-bottom: 0.5rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            font-weight: 700;
-            text-shadow: 0 1px 0 rgba(255,255,255,0.8);
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 900;
-            font-family: 'Space Mono', monospace;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
-        }
-
-        .category-section {
-            margin-bottom: 3rem;
-            animation: fadeIn 0.8s ease-out;
-        }
-
-        .category-header {
-            background: linear-gradient(135deg, #8B4513 0%, #5D3A1A 100%);
-            border: 3px solid #3D2A15;
-            border-bottom: none;
-            padding: 0.9rem 1.5rem;
-            border-radius: 12px 12px 0 0;
-            margin-bottom: 0;
-            box-shadow: 0 -2px 8px rgba(0,0,0,0.3);
-        }
-
-        .category-header h2 {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: #DEB887;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        .empty-state p {
+            color: var(--gray-600);
+            margin-bottom: 24px;
         }
 
         .cards-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
-            background: #FFFEF0;
-            background-image: repeating-linear-gradient(transparent, transparent 27px, #e8e4d8 28px);
-            border: 3px solid #8B7355;
-            border-top: none;
-            padding: 1.5rem;
-            border-radius: 0 0 12px 12px;
-            box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 24px;
+            background: rgba(255, 255, 255, 0.5);
+            padding: 24px;
+            border-radius: 0 0 16px 16px;
         }
 
         .product-card {
-            background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(242,240,235,0.95) 100%);
-            border: 1px solid rgba(0,0,0,0.18);
-            border-radius: 10px;
+            background: white;
+            border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,1);
-            transition: all 0.2s ease;
-            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .product-card:hover {
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,1);
-            transform: translateY(-4px);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
         }
 
-        .card-header {
-            padding: 1.5rem;
+        .card-info {
+            display: grid;
+            grid-template-columns: 1fr;
+            grid-template-rows: auto auto auto;
+            gap: 16px;
+            border-bottom: 2px solid var(--gray-100);
+            padding: 24px;
+        }
+
+        .card-info-top {
             display: flex;
-            gap: 1rem;
-            border-bottom: 1px solid #d1c8b8;
-            background: linear-gradient(180deg, #ffffff 0%, #f5f2ea 100%);
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .card-info-middle {
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            gap: 16px;
+        }
+
+        .card-info-bottom {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .product-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .product-platform-tag {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .product-status-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
         }
 
         .product-image {
             width: 80px;
             height: 80px;
             object-fit: contain;
-            border-radius: 8px;
-            background: linear-gradient(145deg, #e8e8e8, #d0d0d0);
-            padding: 0.5rem;
-            border: 1px solid #bbb;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.8);
-        }
-
-        .product-info {
-            flex: 1;
-        }
-
-        .product-title {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            color: #1f2937;
+            border-radius: 12px;
+            background: var(--gray-50);
+            padding: 8px;
         }
 
         .product-desc {
-            font-size: 0.9rem;
-            color: #6b7280;
-            margin-bottom: 0.75rem;
+            font-size: 14px;
+            color: var(--gray-600);
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.5;
+            max-height: calc(1.5 * 4 * 14px);
         }
 
-        .status-row {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            flex-wrap: wrap;
-        }
-
-        .priority-tag {
-            padding: 0.3rem 0.65rem;
-            border-radius: 5px;
-            font-size: 0.78rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .priority-緊急 {
-            background: linear-gradient(180deg, #d9534f 0%, #c9302c 100%);
-            color: white;
-            border: 1px solid #ac2925;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
-            text-shadow: 0 1px 1px rgba(0,0,0,0.3);
-        }
-
-        .priority-重要 {
-            background: linear-gradient(180deg, #f0ad4e 0%, #d58512 100%);
-            color: white;
-            border: 1px solid #985f0d;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
-            text-shadow: 0 1px 1px rgba(0,0,0,0.3);
-        }
-
-        .priority-一般 {
-            background: linear-gradient(180deg, #337ab7 0%, #204d74 100%);
-            color: white;
-            border: 1px solid #122b40;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
-            text-shadow: 0 1px 1px rgba(0,0,0,0.3);
-        }
-
-        .priority-次要 {
-            background: linear-gradient(180deg, #777 0%, #555 100%);
-            color: white;
-            border: 1px solid #444;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.15);
-            text-shadow: 0 1px 1px rgba(0,0,0,0.3);
-        }
-
-        .priority-暫停 {
-            background: linear-gradient(180deg, #aaa 0%, #888 100%);
-            color: #333;
-            border: 1px solid #777;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.5);
-        }
-
-        .status-badge {
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            padding: 0.3rem 0.65rem;
-            border-radius: 5px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            background: linear-gradient(180deg, #f5f5f5 0%, #e0e0e0 100%);
-            border: 1px solid #aaa;
-            color: #374151;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
-            text-shadow: 0 1px 0 rgba(255,255,255,0.7);
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.3);
-        }
-
-        .release-date {
-            font-family: 'Space Mono', monospace;
-            font-weight: 700;
-            font-size: 0.85rem;
-            color: #374151;
-        }
-
-        .owner-badges {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-
-        .owner-badge {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
+        .product-owner-tag {
+            padding: 6px 12px;
+            border-radius: 15px;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: white;
-            border: 2px solid rgba(255,255,255,0.8);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.4);
-            text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: default;
         }
 
-        .progress-section {
-            padding: 0.85rem 1.25rem;
-            background: linear-gradient(180deg, #f0ece4 0%, #e8e4d8 100%);
-            border-top: 1px solid #d1c8b8;
+        .card-progress {
+            padding: 24px;
+            background: var(--gray-50);
+            height: 130px;
         }
 
-        .progress-bar-container {
+        .progress-container {
             position: relative;
-            height: 48px;
-            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
         }
 
         .progress-track {
             position: absolute;
-            top: 19px;
-            left: 0;
-            right: 0;
-            height: 5px;
-            background: #c0bfb8;
-            border-radius: 3px;
-            box-shadow: inset 0 2px 3px rgba(0,0,0,0.3), inset 0 -1px 1px rgba(255,255,255,0.5);
+            top: 50%;
+            transform: translateY(-50%);
+            left: 54px;
+            right: 54px;
+            height: 8px;
+            background: var(--gray-200);
+            border-radius: 4px;
         }
 
         .progress-fill {
             position: absolute;
-            top: 19px;
-            left: 0;
-            height: 5px;
-            background: linear-gradient(180deg, #5cb85c 0%, #398439 100%);
-            border-radius: 3px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.3);
+            top: 50%;
+            transform: translateY(-50%);
+            left: 54px;
+            height: 8px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 4px;
             transition: width 0.6s ease;
+            z-index: 1;
+        }
+
+        .progress-percent {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, 20px);
+            font-size: 18px;
+            color: var(--gray-700);
+            font-weight: 700;
         }
 
         .progress-nodes {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
+            position: relative;
+            width: 100%;
             display: flex;
             justify-content: space-between;
+            z-index: 2;
+            padding: 0 40px;
         }
 
         .progress-node {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0.3rem;
-        }
-
-        .node-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: linear-gradient(145deg, #e8e8e8, #c0c0c0);
-            border: 1px solid #999;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.8);
+            position: relative;
+            cursor: pointer;
             transition: all 0.3s ease;
         }
 
+        .progress-node:hover .node-dot {
+            transform: scale(1.1);
+        }
+
+        .node-dot {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--gray-300);
+            border: 4px solid white;
+            position: relative;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+        }
+
         .node-dot.active {
-            background: linear-gradient(145deg, #5cb85c, #449d44);
-            border-color: #2d6e2d;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.3);
-            width: 14px;
-            height: 14px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: 4px solid white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+        }
+
+        .node-info {
+            position: absolute;
+            top: 44px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .progress-node:hover .node-info {
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
         }
 
         .node-label {
-            font-size: 0.72rem;
-            color: #9ca3af;
+            font-size: 16px;
+            color: var(--gray-600);
             font-weight: 600;
             white-space: nowrap;
+            text-align: center;
         }
 
         .node-label.active {
-            color: #374151;
-            font-weight: 700;
+            color: var(--gray-900);
         }
 
-        .history-section {
-            padding: 1rem 1.5rem;
-            max-height: 280px;
-            overflow-y: auto;
-            background: #FFFEF0;
-            background-image: repeating-linear-gradient(transparent, transparent 23px, #e8e4d8 24px);
-        }
-
-        .history-item {
-            padding: 0.6rem 0;
-            border-bottom: 1px solid #e8e4d8;
-            font-size: 0.9rem;
-            color: #374151;
-            line-height: 1.6;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-
-        .history-item:last-child {
-            border-bottom: none;
-        }
-
-        .empty-state {
+        .node-date {
+            font-size: 12px;
+            color: var(--gray-500);
+            white-space: nowrap;
             text-align: center;
-            padding: 4rem 2rem;
-            background: linear-gradient(180deg, rgba(255,255,255,0.97) 0%, rgba(240,238,232,0.95) 100%);
-            border: 1px solid rgba(0,0,0,0.15);
-            border-radius: 16px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,1);
         }
 
-        .empty-state-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
+        .card-version {
+            padding: 24px;
+            background: linear-gradient(to bottom, #f9fafb, #ffffff);
         }
 
-        .empty-state h3 {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-            color: #1f2937;
-        }
-
-        .empty-state p {
-            color: #6b7280;
-            margin-bottom: 1.5rem;
-        }
-
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #d0ccc0;
-            border-radius: 4px;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #aaa 0%, #888 100%);
-            border-radius: 4px;
-            border: 1px solid #777;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(180deg, #bbb 0%, #999 100%);
-        }
-
-        .owner-tracker {
-            background: linear-gradient(90deg, #DEB887 0%, #CD853F 50%, #DEB887 100%);
-            border: 3px solid #8B7355;
-            border-radius: 12px;
-            padding: 1.25rem 1.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.4);
-        }
-
-        .owner-tracker-title {
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: #5D3A1A;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            margin-bottom: 1rem;
-            text-shadow: 0 1px 0 rgba(255,255,255,0.5);
-        }
-
-        .owner-cards-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.65rem;
-        }
-
-        .owner-update-card {
+        .version-header {
             display: flex;
             align-items: center;
-            gap: 0.65rem;
-            padding: 0.6rem 0.9rem;
-            background: linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(240,235,225,0.85) 100%);
+            gap: 10px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .version-icon {
+            font-size: 22px;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .version-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .version-subtitle {
+            font-size: 13px;
+            color: var(--gray-500);
+            margin-left: auto;
+        }
+
+        .version-content {
+            font-size: 15px;
+            color: var(--gray-700);
+            line-height: 1.8;
+            word-wrap: break-word;
+            padding: 16px 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .version-content ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .version-content ul li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
             border-radius: 8px;
-            border-left: 4px solid;
-            border-top: 1px solid rgba(255,255,255,0.8);
-            border-right: 1px solid rgba(0,0,0,0.12);
-            border-bottom: 1px solid rgba(0,0,0,0.12);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.9);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--gray-700);
+            transition: background 0.2s;
         }
 
-        .owner-update-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.9);
+        .version-content ul li::before {
+            content: "▸";
+            color: var(--primary);
+            font-size: 13px;
+            flex-shrink: 0;
+            margin-top: 2px;
         }
 
-        .owner-update-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
+        .version-content .ver-empty {
+            color: var(--gray-500);
+            font-style: italic;
+            font-size: 14px;
+            text-align: center;
+            padding: 12px 0;
+        }
+
+        .version-content-wrapper {
+            transition: all 0.3s ease;
+        }
+
+        /* ========================================
+           Version Content Collapsible
+        ======================================== */
+
+        .version-content-collapsible {
+            position: relative;
+        }
+
+        .version-content-collapsible .version-content-grid {
+            display: grid;
+            transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .version-content-collapsible.collapsed .version-content-grid {
+            grid-template-rows: 340px;
+        }
+
+        .version-content-collapsible.expanded .version-content-grid {
+            grid-template-rows: 1fr;
+        }
+
+        .version-content-collapsible .version-content-inner {
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .version-content-collapsible.collapsed::after {
+            content: '';
+            position: absolute;
+            bottom: 32px;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background: linear-gradient(to bottom, transparent, white);
+            pointer-events: none;
+            border-radius: 0 0 12px 12px;
+        }
+
+        .version-content-toggle {
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: white;
-            flex-shrink: 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.4);
-            border: 2px solid rgba(255,255,255,0.6);
-            text-shadow: 0 1px 1px rgba(0,0,0,0.3);
-        }
-
-        .owner-update-name {
-            font-weight: 700;
-            font-size: 0.88rem;
-            color: #1f2937;
-            white-space: nowrap;
-        }
-
-        .owner-update-date {
-            font-size: 0.75rem;
-            font-family: 'Space Mono', monospace;
-            color: #6b7280;
-            margin-top: 0.1rem;
-            white-space: nowrap;
-        }
-
-        .owner-update-days {
-            font-size: 0.72rem;
-            font-weight: 700;
-            padding: 0.2rem 0.55rem;
-            border-radius: 4px;
-            white-space: nowrap;
-            margin-left: 0.25rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.4);
-        }
-
-        .owner-tooltip {
-            position: fixed;
-            background: linear-gradient(180deg, rgba(255,255,255,0.99) 0%, rgba(242,240,235,0.97) 100%);
-            border: 1px solid rgba(0,0,0,0.18);
-            border-top: 3px solid #8B4513;
+            gap: 5px;
+            margin-top: 6px;
+            padding: 5px 12px;
+            border: none;
+            background: transparent;
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'Noto Sans TC', sans-serif;
+            cursor: pointer;
             border-radius: 8px;
-            padding: 0.85rem 1rem;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,1);
-            pointer-events: none;
-            z-index: 9999;
-            opacity: 0;
-            transition: opacity 0.15s ease;
-            min-width: 210px;
+            transition: background 0.2s, color 0.2s;
+            letter-spacing: 0.3px;
+            width: 100%;
         }
 
-        .owner-tooltip.visible {
-            opacity: 1;
+        .version-content-toggle:hover {
+            background: rgba(37, 99, 235, 0.07);
+            color: var(--primary-dark);
         }
 
-        .owner-tooltip-name {
-            font-weight: 700;
-            font-size: 0.95rem;
-            color: #1f2937;
-            margin-bottom: 0.55rem;
+        .version-content-toggle svg {
+            transition: transform 0.3s ease;
+            flex-shrink: 0;
         }
 
-        .owner-tooltip-row {
+        .version-content-collapsible.expanded .version-content-toggle svg {
+            transform: rotate(180deg);
+        }
+
+        /* ========================================
+           Timeline Card（EZ-UAQ / 專案 / Service）
+        ======================================== */
+
+        .cards-grid.timeline-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .timeline-card {
+            background: white;
+            border-radius: 16px;
+            overflow: visible;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
+        }
+
+        .timeline-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+        }
+
+        .timeline-card-header {
+            padding: 16px 24px;
+            border-bottom: 2px solid var(--gray-100);
             display: flex;
             align-items: center;
-            gap: 0.4rem;
-            font-size: 0.82rem;
-            color: #6b7280;
-            margin-top: 0.3rem;
+            gap: 16px;
         }
 
-        @media (max-width: 768px) {
-            body { padding: 1rem; }
-            h1 { font-size: 1.75rem; }
-            .header-top { flex-direction: column; gap: 1rem; align-items: flex-start; }
-            .upload-section { flex-wrap: wrap; width: 100%; }
-            .cards-grid { grid-template-columns: 1fr; }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        .timeline-card-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .timeline-card-info-rows {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .timeline-card-info-row-top {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .timeline-card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .timeline-card-desc {
+            font-size: 14px;
+            color: var(--gray-600);
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.5;
+            max-height: calc(1.5 * 4 * 14px);
+        }
+
+        .timeline-card-owners {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .timeline-card-verTotal {
+            font-size: 13px;
+            color: var(--gray-500);
+            white-space: nowrap;
+            flex-shrink: 0;
+            margin-left: auto;
+        }
+
+        .timeline-body {
+            padding: 46px 32px 56px 32px;
+            background: var(--gray-50);
+            border-radius: 0 0 16px 16px;
+        }
+
+        .timeline-row {
+            display: grid;
+            grid-template-columns: 160px 64px 1fr;
+            overflow: visible;
+        }
+
+        .timeline-row-left {
+            display: flex;
+            justify-content: flex-end;
+            align-items: flex-start;
+            padding-right: 14px;
+            margin-top: -18px;
+        }
+
+        .timeline-row-left .node-info {
+            position: static;
+            top: auto;
+            align-items: center;
+            cursor: default;
+            min-width: 95px;
+            min-height: 65px;
+        }
+
+        .timeline-row-center {
+            position: relative;
+            align-self: stretch;
+        }
+
+        .timeline-row .timeline-row-center {
+            min-height: 200px;
+        }
+
+        .timeline-row-center .node-dot {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            cursor: default;
+        }
+
+        .timeline-progress-wrap {
+            position: absolute;
+            top: 14px;
+            bottom: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            z-index: 1;
+        }
+
+        .timeline-progress-track {
+            position: absolute;
+            inset: 0;
+            border-radius: 4px;
+            background: var(--gray-200);
+        }
+
+        .timeline-progress-fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            border-radius: 4px;
+            background: linear-gradient(0deg, var(--primary), var(--secondary));
+            transition: height 0.6s ease;
+        }
+
+        .timeline-progress-percent {
+            position: absolute;
+            right: calc(100% + 8px);
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 15px;
+            color: var(--gray-700);
+            font-weight: 700;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        .timeline-row-right {
+            padding-left: 16px;
+            padding-bottom: 45px;
+            margin-top: -18px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .timeline-row-right .timeline-progress-percent-mobile {
+            position: absolute;
+            display: none;
+            top: -25px;
+            right: 10px;
+            font-size: 14px;
+            color: var(--gray-700);
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .timeline-row-right .version-content {
+            flex: 1;
+        }
+
+        .timeline-row:last-child .timeline-row-right {
+            padding-bottom: 0;
+        }
+
+        .timeline-row:last-child .timeline-row-right .version-content,
+        .timeline-row:only-child .timeline-row-right .version-content {
+            margin-top: 0;
+            transform: none;
+        }
+
+        .timeline-row:last-child .timeline-row-left .node-info,
+        .timeline-row:only-child .timeline-row-left .node-info {
+            margin-top: 0;
+            transform: none;
+        }
+
+        /* ========================================
+           Timeline Card - Meta Section（專案 / Service 資訊列）
+        ======================================== */
+
+        .meta-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .meta-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 80px;
+        }
+
+        .meta-label {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--gray-500);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            white-space: nowrap;
+            margin-bottom: 4px;
+        }
+
+        .meta-tags {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .meta-divider {
+            width: 1px;
+            height: 36px;
+            background: var(--gray-200);
+            flex-shrink: 0;
+            align-self: center;
+        }
+
+        @media (max-width: 1425px) {
+            header {
+                padding: 12px 24px 24px 24px;
+            }
+
+            .header-top {
+                flex-direction: column;
+                gap: 16px;
+                align-items: center;
+            }
+
+            .title-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            h1 {
+                font-size: 33px;
+            }
+        }
+
+        @media (max-width: 820px) {
+            body {
+                padding: 16px;
+            }
+
+            .header-bottom {
+                flex-direction: column;
+            }
+
+            .stats-grid {
+                display: inline-grid;
+                grid-template-columns: repeat(2, 1fr);
+                width: auto;
+            }
+
+            #statsTotalGroup {
+                grid-column: 1 / -1;
+            }
+
+            .stats-value {
+                font-size: 18px;
+            }
+
+            .header-toolbar {
+                width: 100%;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+
+            .header-toolbar .toolbar-divider {
+                display: none;
+            }
+
+            .search-box {
+                min-width: 0; width: 100%;
+            }
+
+            .filter-group {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+
+            .filter-group select {
+                width: 100%;
+                min-width: 0;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+                padding: 16px;
+            }
+
+            .timeline-card-header {
+                flex-wrap: wrap;
+                padding: 14px 16px;
+                gap: 10px;
+            }
+
+            .timeline-card-title {
+                font-size: 16px;
+            }
+
+            .meta-row {
+                gap: 10px;
+            }
+
+            .meta-divider {
+                display: none;
+            }
+
+            .timeline-body {
+                padding: 14px;
+            }
+
+            .timeline-row {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto;
+                gap: 0;
+                position: relative;
+                margin-bottom: 8px;
+            }
+
+            .timeline-row-left {
+                justify-content: flex-start;
+                padding-right: 0;
+                padding-left: 0;
+                margin-top: 0;
+                margin-bottom: 8px;
+            }
+
+            .timeline-row-left .node-info {
+                flex-direction: row;
+                align-items: center;
+                gap: 8px;
+                min-height: auto;
+                min-width: auto;
+                padding: 5px 12px;
+                border-radius: 20px;
+                box-shadow: none;
+            }
+
+            .timeline-row-left .node-label {
+                font-size: 14px;
+            }
+
+            .timeline-row-left .node-date {
+                font-size: 12px;
+            }
+
+            .timeline-row-center {
+                min-height: 0 !important;
+            }
+
+            .timeline-row-center .node-dot {
+                display: none;
+            }
+
+            .timeline-row-center .timeline-progress-wrap {
+                visibility: hidden;
+            }
+
+            .timeline-row-center .timeline-progress-percent {
+                display: none;
+            }
+
+            .timeline-row-right {
+                padding-left: 0;
+                padding-bottom: 10px;
+                margin-top: 0;
+                position: relative;
+            }
+
+            .timeline-row-right .timeline-progress-percent-mobile {
+                display: block;
+            }
+
+            .timeline-row-right .version-content {
+                font-size: 14px;
+                padding: 12px 14px;
+            }
+
+            /* Mobile full-screen loading overlay */
+            #mobileLoadingOverlay {
+                display: flex;
+                position: fixed;
+                inset: 0;
+                z-index: 9999;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 24px;
+                transition: opacity 0.4s ease;
+            }
+
+            #mobileLoadingOverlay.hidden {
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            #mobileLoadingOverlay .mobile-loading-spinner {
+                width: 52px;
+                height: 52px;
+                border: 4px solid rgba(255, 255, 255, 0.3);
+                border-top-color: white;
+                border-radius: 50%;
+                animation: spin 1s ease-in-out infinite;
+            }
+
+            #mobileLoadingOverlay h2 {
+                color: white;
+                font-size: 22px;
+                letter-spacing: 0.5px;
+            }
+
+            #mobileLoadingOverlay h3 {
+                color: white;
+                font-size: 20px;
+                font-weight: 600;
+                letter-spacing: 0.5px;
+            }
+
+            #mobileLoadingOverlay p {
+                color: var(--gray-300);
+                font-size: 16px;
+                letter-spacing: 0.5px;
+            }
+        }
+
+        @media (max-width: 530px) {
+            h1 {
+                font-size: 24px;
+            }
+
+            .last-update-text {
+                font-size: 12px;
+            }
+
+            .tab-btn {
+                padding: 5px 8px;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 385px) {
+            .tab-group {
+                flex-wrap: wrap;
+            }
         }
     </style>
 </head>
 <body>
+    <div id="mobileLoadingOverlay">
+        <div class="mobile-loading-spinner"></div>
+        <h2>RD9產品開發進度戰情室</h2>
+        <h3>載入資料中...</h3>
+        <p>正在從 Google Sheets 讀取產品資料</p>
+    </div>
     <div class="container">
         <header>
             <div class="header-top">
-                <div>
-                    <h1>🎯 RD9產品開發進度戰情室</h1>
-                </div>
-                <div class="upload-section">
-                    <button onclick="reloadGoogleSheets()" class="btn btn-warning" id="reloadBtn">
-                        🔄 重新載入
-                    </button>
-                    <div class="file-input-wrapper">
-                        <input type="file" id="excelFile" accept=".xlsx,.xls" onchange="handleFileUpload(event)">
-                        <label for="excelFile" class="btn">
-                            📁 上傳 Excel 檔案
-                        </label>
+                <div class="title-group">
+                    <h1>RD9產品開發進度戰情室</h1>
+                    <div class="last-update-group">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:#2563eb;flex-shrink:0"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <span class="last-update-text" id="lastUpdateDate">最後更新時間：載入中...</span>
                     </div>
-                    <button onclick="downloadTemplate()" class="btn btn-success">
-                        📥 下載範本
-                    </button>
                 </div>
+                <div class="tab-group" id="tabGroup"></div>
             </div>
 
-            <div class="data-source-info">
-                <span>資料來源：</span>
-                <span class="source-badge" id="sourceIndicator">載入中...</span>
-            </div>
-
-            <div class="toolbar">
-                <div class="search-box">
-                    <span class="search-icon">🔍</span>
-                    <input type="text" id="searchInput" placeholder="搜尋產品名稱或編號..." onkeyup="filterProducts()">
+            <div class="header-bottom">
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stats-card" id="statsTotalGroup">
+                        <div class="stats-label" id="statsTotalName">產品總數</div>
+                        <div class="stats-value" style="color: var(--primary);" id="statsTotalCount">-</div>
+                    </div>
+                    <div class="stats-card" id="statsG1Group">
+                        <div class="stats-label" id="statsG1Name">-</div>
+                        <div class="stats-value" id="statsG1Count">-</div>
+                    </div>
+                    <div class="stats-card" id="statsG2Group">
+                        <div class="stats-label" id="statsG2Name">-</div>
+                        <div class="stats-value" id="statsG2Count">-</div>
+                    </div>
+                    <div class="stats-card" id="statsG3Group">
+                        <div class="stats-label" id="statsG3Name">-</div>
+                        <div class="stats-value" id="statsG3Count">-</div>
+                    </div>
                 </div>
-                <div class="filter-group">
-                    <select id="categoryFilter" onchange="filterProducts()">
-                        <option value="">全部類別</option>
-                    </select>
-                    <select id="progressFilter" onchange="filterProducts()">
-                        <option value="">全部進度</option>
-                        <option value="進行中">進行中</option>
-                        <option value="已上市">已上市</option>
-                    </select>
-                    <select id="priorityFilter" onchange="filterProducts()">
-                        <option value="">全部優先權</option>
-                        <option value="緊急">緊急</option>
-                        <option value="重要">重要</option>
-                        <option value="一般">一般</option>
-                        <option value="次要">次要</option>
-                        <option value="暫停">暫停</option>
-                    </select>
-                    <select id="statusFilter" onchange="filterProducts()">
-                        <option value="">全部狀態</option>
-                        <option value="研發">研發</option>
-                        <option value="樣品">樣品</option>
-                        <option value="洽詢">洽詢</option>
-                        <option value="發售">發售</option>
-                        <option value="停產">停產</option>
-                        <option value="暫停出貨">暫停出貨</option>
-                    </select>
-                    <select id="stageFilter" onchange="filterProducts()">
-                        <option value="">全部階段</option>
-                        <!-- 產品階段 -->
-                        <option value="規劃">規劃</option>
-                        <option value="研發">研發</option>
-                        <option value="驗証">驗証</option>
-                        <option value="量產">量產</option>
-                        <option value="上市">上市</option>
-                        <!-- 專案階段 -->
-                        <option value="現勘">現勘</option>
-                        <option value="討論">討論</option>
-                        <option value="報價">報價</option>
-                        <option value="執行">執行</option>
-                        <option value="結案">結案</option>
-                    </select>
+
+                <div class="header-toolbar">
+                    <div class="search-box">
+                        <span class="search-icon">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        </span>
+                        <input type="text" id="searchInput" placeholder="搜尋產品名稱..." onkeyup="filterProducts()">
+                    </div>
+                    <div class="toolbar-divider"></div>
+                    <div class="filter-group">
+                        <select class="filter" id="categoryFilter" onchange="filterProducts()">
+                            <option value="">全部種類</option>
+                        </select>
+                        <select class="filter" id="ownerFilter" onchange="filterProducts()">
+                            <option value="">全部維護者</option>
+                        </select>
+                        <select class="filter" id="statusFilter" onchange="filterProducts()">
+                            <option value="">全部狀態</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </header>
-
-        <div class="stats-grid" id="statsGrid">
-            <div class="stat-card">
-                <div class="stat-label">總專案數</div>
-                <div class="stat-value" style="color: var(--primary);" id="totalCount">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">進行中</div>
-                <div class="stat-value" style="color: var(--warning);" id="ongoingCount">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">已上市</div>
-                <div class="stat-value" style="color: var(--success);" id="completedCount">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">緊急項目</div>
-                <div class="stat-value" style="color: var(--danger);" id="urgentCount">0</div>
-            </div>
-        </div>
-
-        <div id="ownerTracker" class="owner-tracker" style="display:none;"></div>
 
         <div id="productsContainer">
             <div class="empty-state">
@@ -942,177 +1340,231 @@
             }
         }
 
-        // 3. 請求限流器（防止 API 濫用）
-        class RateLimiter {
-            constructor(maxRequests = 10, windowMs = 60000) {
-                this.maxRequests = maxRequests;
-                this.windowMs = windowMs;
-                this.requests = [];
-            }
-
-            canMakeRequest() {
-                const now = Date.now();
-                this.requests = this.requests.filter(time => now - time < this.windowMs);
-
-                if (this.requests.length >= this.maxRequests) {
-                    const remainingTime = Math.ceil(this.getRemainingTime() / 1000);
-                    console.warn(`⚠️ API 請求過於頻繁，請等待 ${remainingTime} 秒後重試`);
-                    return false;
-                }
-
-                this.requests.push(now);
-                return true;
-            }
-
-            getRemainingTime() {
-                if (this.requests.length === 0) return 0;
-                const oldestRequest = Math.min(...this.requests);
-                return Math.max(0, this.windowMs - (Date.now() - oldestRequest));
-            }
-        }
-
-        // 4. CSS 顏色值驗證（防止 CSS Injection）
-        function sanitizeCssColor(color) {
-            if (!color) return '#999999';
-            const c = color.trim();
-            if (/^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(c)) return c;
-            if (/^rgb\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*\)$/.test(c)) return c;
-            if (/^rgba\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*(0|1|0?\.\d+)\s*\)$/.test(c)) return c;
-            console.warn('⚠️ 不合法的顏色值已被封鎖:', color);
-            return '#999999';
-        }
-
-        // 5. 安全的圖片 URL 處理
+        // 3. 安全的圖片 URL 處理
         function sanitizeImageUrl(url) {
-            if (!url || url.trim() === '') {
-                return 'https://via.placeholder.com/80?text=No+Image';
+            if (!url || String(url).trim() === '') {
+                return '';
             }
-
-            // 只允許 HTTPS 圖片
             if (!isValidUrl(url)) {
                 console.warn('⚠️ 不安全的圖片 URL 已被封鎖:', url);
-                return 'https://via.placeholder.com/80?text=Invalid+URL';
+                return '';
             }
-
             return url;
         }
+
+        // ========================================
+        // 頁籤設定（工作表名稱 = 頁籤）
+        //   type: 'product'  → 產品卡片（最新版本 → 預計版本 進度條）
+        //   type: 'timeline' → 直式時間軸卡片（同名稱多列合併為多筆紀錄）
+        // ========================================
+
+        const TAB_CONFIG = [
+            {
+                sheet: 'UA', label: 'UA 通訊服務器', type: 'product',
+                searchPlaceholder: '搜尋產品名稱...', catAllName: '全部種類',
+                stats: {
+                    total: '產品總數',
+                    groups: [
+                        { label: '開發中', statuses: ['開發', '開發中', '研發'], color: 'var(--danger)' },
+                        { label: '更新中', statuses: ['更新中'], color: 'var(--warning)' },
+                        { label: '發售', statuses: ['發售', '已發佈', '維護中'], color: 'var(--success)' },
+                    ]
+                }
+            },
+            {
+                sheet: 'UA IO', label: 'UA I/O 模組', type: 'product',
+                searchPlaceholder: '搜尋產品名稱...', catAllName: '全部種類',
+                stats: {
+                    total: '產品總數',
+                    groups: [
+                        { label: '開發中', statuses: ['開發', '開發中', '研發'], color: 'var(--danger)' },
+                        { label: '更新中', statuses: ['更新中'], color: 'var(--warning)' },
+                        { label: '發售', statuses: ['發售', '已發佈', '維護中'], color: 'var(--success)' },
+                    ]
+                }
+            },
+            {
+                sheet: 'EZ-UAQ', label: 'EZ-UAQ', type: 'timeline',
+                searchPlaceholder: '搜尋版本名稱...', catAllName: '全部種類',
+                stats: {
+                    total: '版本總數',
+                    groups: [
+                        { label: '開發中', statuses: ['開發', '開發中', '研發'], color: 'var(--danger)' },
+                        { label: '已發佈', statuses: ['發佈', '已發佈', '發售', '已完成'], color: 'var(--success)' },
+                    ]
+                }
+            },
+            {
+                sheet: '專案', label: '專案', type: 'timeline', uniqueStats: true,
+                searchPlaceholder: '搜尋專案名稱...', catAllName: '全部客戶',
+                meta: [
+                    { label: '使用設備', field: 'deviceUsed', split: true },
+                    { label: '是否客製', field: 'customized' },
+                    { label: '業務/FAE', field: 'sales' },
+                ],
+                stats: {
+                    total: '專案總數',
+                    groups: [
+                        { label: '進行中', statuses: ['進行中', '開發中'], color: 'var(--danger)' },
+                        { label: '已完成', statuses: ['已完成', '結案'], color: 'var(--success)' },
+                    ]
+                }
+            },
+            {
+                sheet: 'Service', label: 'Service', type: 'timeline', uniqueStats: true,
+                searchPlaceholder: '搜尋服務名稱...', catAllName: '全部客戶',
+                meta: [
+                    { label: '相關產品', field: 'deviceUsed', split: true },
+                ],
+                stats: {
+                    total: '服務總數',
+                    groups: [
+                        { label: '進行中', statuses: ['進行中'], color: 'var(--danger)' },
+                        { label: '已完成', statuses: ['已完成'], color: 'var(--success)' },
+                    ]
+                }
+            },
+        ];
 
         // ========================================
         // 應用程式主體
         // ========================================
 
-        let productsData = [];
-        let dataSource = 'google';
+        let productsData = {};
+        let activeTab = TAB_CONFIG[0].sheet;
 
-        // 初始化請求限流器（每分鐘最多 10 次請求）
-        const apiLimiter = new RateLimiter(10, 60000);
+        // Google Apps Script 部署網址（部署方式見 README）
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyLJOhcxSiNni5FxxAbherMm0kqj8eJjOnzQU0NVZ9Dlm5nHvI6n9mPkh9wibm4Ctmj/exec';
 
-        // Google Apps Script 部署網址（從環境變數讀取或使用預設值）
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxNLI-1r1SIWOMw5LHmbqkmJKCXNQUegrrVzcWo2UY7Y28QliEpc9jYVG8J1GEbmRUsCg/exec';
+        // SVG
+        const clipboard_svg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>';
+        const target_svg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>';
 
-        const statusColors = {
-            '研發': '#FFA726',
-            '樣品': '#FFA726',
-            '洽詢': '#B0BEC5',
-            '發售': '#42A5F5',
-            '停產': '#78909C',
-            '暫停出貨': '#90A4AE'
+        const statusTagColorPool = {
+            '開發':   { light: '#FFE4E6', dark: '#F43F5E' },   // 玫瑰 + 紅
+            '開發中': { light: '#FFE4E6', dark: '#F43F5E' },
+            '研發':   { light: '#FFE4E6', dark: '#F43F5E' },
+            '進行中': { light: '#FFE4E6', dark: '#F43F5E' },
+
+            '更新中': { light: '#FEF9C3', dark: '#EAB308' },   // 黃 + 黃
+            '洽詢':   { light: '#DBEAFE', dark: '#3B82F6' },   // 藍 + 藍
+
+            '發售':   { light: '#DCFCE7', dark: '#10B981' },   // 綠 + 綠
+            '維護中': { light: '#DCFCE7', dark: '#10B981' },
+            '發佈':   { light: '#DCFCE7', dark: '#10B981' },
+            '已發佈': { light: '#DCFCE7', dark: '#10B981' },
+            '已完成': { light: '#DCFCE7', dark: '#10B981' },
+            '結案':   { light: '#DCFCE7', dark: '#10B981' },
+
+            '停產':     { light: '#F8FAFC', dark: '#94A3B8' }, // 淡灰藍 + 深灰藍
+            '暫停出貨': { light: '#FFEDD5', dark: '#F97316' }, // 橙 + 橙
         };
 
-        const OWNER_INFO = {
-            '陳慶文': { en: 'Sun'    },
-            '吳家豪': { en: 'Howard' },
-            '陳建安': { en: 'Jason'  },
-            '游尚明': { en: 'Cony'   },
-            '嚴清宇': { en: 'Chris'  },
-            '陳俊廷': { en: 'Tim'    },
+        const sharedPalette = [
+            { bg: '#FFE4E6', text: '#9F1239' }, // 玫瑰
+            { bg: '#FFEDD5', text: '#9A3412' }, // 橙
+            { bg: '#FEF9C3', text: '#854D0E' }, // 黃
+            { bg: '#DCFCE7', text: '#14532D' }, // 綠
+            { bg: '#CCFBF1', text: '#134E4A' }, // 薄荷
+            { bg: '#CFFAFE', text: '#164E63' }, // 青
+            { bg: '#DBEAFE', text: '#1E3A8A' }, // 藍
+            { bg: '#EDE9FE', text: '#4C1D95' }, // 靛紫
+            { bg: '#F5D0FE', text: '#701A75' }, // 洋紅
+            { bg: '#FCE7F3', text: '#831843' }, // 粉紅
+        ];
+
+        // RD9 團隊成員固定色（試算表填「中文名(英文名)」）
+        const ownerTagColorPool = {
+            '陳慶文(Sun)':    sharedPalette[6], // 藍
+            '吳家豪(Howard)': sharedPalette[1], // 橙
+            '陳建安(Jason)':  sharedPalette[3], // 綠
+            '游尚明(Cony)':   sharedPalette[7], // 靛紫
+            '嚴清宇(Chris)':  sharedPalette[5], // 青
+            '陳俊廷(Tim)':    sharedPalette[0], // 玫瑰
         };
 
-        // 定義不同類別的階段
-        const productStages = ['規劃', '研發', '驗証', '量產', '上市'];
-        const projectStages = ['現勘', '討論', '報價', '執行', '結案'];
+        const ownerColorMap = {};
 
-        // 根據產品名稱獲取對應的階段（如果產品名稱是"專案"，則使用專案階段）
-        function getStagesForCategory(category, productName) {
-            return (productName === '專案') ? projectStages : productStages;
+        // 獲取維護者標籤顏色(同一個維護者顏色相同) -- 名字不在 ownerTagColorPool 中才會用此方法
+        function getOwnerTagColor(ownerName) {
+            if (!ownerName) return { bg: '#F1F5F9', text: '#334155' }; // 石板灰
+            if (ownerColorMap[ownerName]) return ownerColorMap[ownerName];
+            let hash = 0;
+            for (let i = 0; i < ownerName.length; i++) {
+                hash = ownerName.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            const color = sharedPalette[Math.abs(hash) % sharedPalette.length];
+            ownerColorMap[ownerName] = color;
+            return color;
         }
 
-        // 為了向後兼容，保留 stages 變數（預設為產品階段）
-        const stages = productStages;
+        function getTabConfig(tabName) {
+            return TAB_CONFIG.find(t => t.sheet === tabName) || TAB_CONFIG[0];
+        }
+
+        function renderTabButtons() {
+            const group = document.getElementById('tabGroup');
+            group.innerHTML = TAB_CONFIG.map(t =>
+                `<button class="tab-btn${t.sheet === activeTab ? ' active' : ''}" data-tab="${escapeHtml(t.sheet)}">${escapeHtml(t.label)}</button>`
+            ).join('');
+            group.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => switchTab(btn.dataset.tab, btn));
+            });
+        }
+
+        function switchTab(tabName, btnEl) {
+            activeTab = tabName;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            if (btnEl) btnEl.classList.add('active');
+            updateLastUpdateDate();
+            clearFilters(true);
+            updateFilter();
+            renderProducts();
+            updateStats();
+            updateUrlParams();
+        }
+
+        function setActionsLocked(locked) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.disabled = locked;
+            });
+            document.getElementById('searchInput').disabled = locked;
+            document.querySelectorAll('.filter').forEach(sel => {
+                sel.disabled = locked;
+            });
+        }
 
         window.addEventListener('DOMContentLoaded', function() {
-            // 先顯示介面，資料載入設為異步
-            console.log('📱 頁面載入完成，準備載入資料...');
-
-            // 檢查 XLSX 函式庫是否已載入（但不阻塞）
-            if (typeof XLSX === 'undefined') {
-                console.warn('⚠️ XLSX 函式庫尚未載入，Excel 上傳功能暫時無法使用');
-            } else {
-                console.log('✅ XLSX 函式庫載入成功');
-            }
-
-            // 使用 setTimeout 讓頁面先渲染，然後異步載入資料
-            setTimeout(function() {
-                loadGoogleSheets();
-            }, 100); // 延遲 100ms，讓頁面先顯示
+            renderTabButtons();
+            setActionsLocked(true);
+            loadGoogleSheets();
         });
 
-        function updateSourceIndicator(source) {
-            const indicator = document.getElementById('sourceIndicator');
-
-            if (source === 'google') {
-                indicator.textContent = 'Google Sheets (自動同步)';
-                indicator.className = 'source-badge source-google';
-            } else if (source === 'excel') {
-                indicator.textContent = 'Excel 檔案';
-                indicator.className = 'source-badge source-excel';
-            } else {
-                indicator.textContent = '載入中...';
-                indicator.className = 'source-badge';
-            }
+        function hideMobileOverlay() {
+            const overlay = document.getElementById('mobileLoadingOverlay');
+            overlay.classList.add('hidden');
+            setTimeout(() => overlay.style.display = 'none', 400);
         }
 
         function loadGoogleSheets() {
-            if (dataSource !== 'google') return;
-
-            // 檢查請求限流
-            if (!apiLimiter.canMakeRequest()) {
-                const remainingTime = Math.ceil(apiLimiter.getRemainingTime() / 1000);
-                showError(`
-                    <strong>請求過於頻繁</strong><br><br>
-                    為了保護系統安全，請等待 ${remainingTime} 秒後再試。<br><br>
-                    如需立即查看資料，請使用「上傳 Excel 檔案」功能。
-                `);
+            if (!APPS_SCRIPT_URL) {
+                document.getElementById('lastUpdateDate').textContent = '最後更新時間：N/A';
+                document.getElementById('productsContainer').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🛠️</div>
+                        <h3>尚未設定資料來源</h3>
+                        <p>請依 README 部署 Google Apps Script，並將部署網址填入 index.html 的 APPS_SCRIPT_URL。</p>
+                    </div>
+                `;
+                hideMobileOverlay();
                 return;
             }
 
-            updateSourceIndicator('loading');
+            // 添加 origin 參數進行來源驗證，並加上 sheet=all 取得所有工作表
+            const apiUrl = APPS_SCRIPT_URL + '?sheet=all&origin=' + encodeURIComponent(window.location.origin);
 
-            // 顯示載入中的提示（不阻塞頁面）
-            const container = document.getElementById('productsContainer');
-            if (container) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">⏳</div>
-                        <h3>正在載入資料...</h3>
-                        <p>從 Google Sheets 讀取資料中，請稍候</p>
-                    </div>
-                `;
-            }
-
-            // 添加 origin 參數進行來源驗證
-            const apiUrl = APPS_SCRIPT_URL + '?origin=' + encodeURIComponent(window.location.origin);
-
-            // 添加超時控制（30秒）
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 30000);
-
-            fetch(apiUrl, {
-                signal: controller.signal,
-                cache: 'no-cache' // 避免快取導致的延遲
-            })
+            fetch(apiUrl)
                 .then(response => {
-                    clearTimeout(timeoutId);
                     if (!response.ok) {
                         throw new Error('無法連接到 Google Sheets (HTTP ' + response.status + ')');
                     }
@@ -1123,161 +1575,69 @@
                         throw new Error(data.error);
                     }
 
-                    productsData = data.map(row => ({
-                        id: row['產品編號'] || '',
-                        name: row['產品名稱'] || '',
-                        category: row['產品類別'] || '',
-                        image: row['產品圖片網址'] || 'https://via.placeholder.com/80',
-                        description: row['產品描述'] || '',
-                        priority: row['優先權'] || '一般',
-                        status: row['供貨狀態'] || '',
-                        releaseDate: row['預計上市時間'] || '',
-                        stage: row['開發階段'] || '規劃',
-                        owner1: row['負責人1'] || '',
-                        owner1Color: row['負責人1顏色'] || '#33FF57',
-                        owner2: row['負責人2'] || '',
-                        owner2Color: row['負責人2顏色'] || '#33A1FF',
-                        owner3: row['負責人3'] || '',
-                        owner3Color: row['負責人3顏色'] || '#FFBD33',
-                        history: row['專案歷程'] || '',
-                        lastUpdate: row['最後更新日期'] || ''
-                    }));
+                    // 將各工作表資料解析並儲存到 productsData
+                    // 回傳格式: { "工作表1": { "lastModified": "...", "data": [...] }, ... }
+                    Object.keys(data).forEach(sheetName => {
+                        const sheetInfo = data[sheetName];
+                        const rows = sheetInfo.data || [];
 
-                    console.log('✅ 成功載入', productsData.length, '筆資料');
-                    updateSourceIndicator('google');
-                    updateCategoryFilter();
+                        productsData[sheetName] = {
+                            lastModified: sheetInfo.lastModified || null,
+                            data: rows.map(mapRow)
+                        };
+                    });
+
+                    console.log('✅ Google Sheets 載入成功');
+
+                    setActionsLocked(false);
+                    updateLastUpdateDate();
+                    updateFilter();
                     renderProducts();
                     updateStats();
-                    updateOwnerTracker();
+                    applyUrlParams();
+                    hideMobileOverlay();
                 })
                 .catch(error => {
-                    clearTimeout(timeoutId);
                     console.error('❌ Google Sheets 載入失敗:', error);
-
-                    let errorMessage = error.message;
-                    if (error.name === 'AbortError') {
-                        errorMessage = '載入超時（超過 30 秒）';
-                    }
-
-                    showError(`
-                        <strong>無法連接到 Google Sheets</strong><br><br>
-                        錯誤訊息: ${escapeHtml(errorMessage)}<br><br>
-                        請點擊上方「上傳 Excel 檔案」按鈕使用本地檔案
-                    `);
+                    showError(`無法連接到 Google Sheets (${escapeHtml(error.message)})`);
+                    document.getElementById('lastUpdateDate').textContent = '最後更新時間：N/A';
+                    hideMobileOverlay();
                 });
         }
 
-        function reloadGoogleSheets() {
-            if (dataSource === 'excel') {
-                if (confirm('目前使用 Excel 檔案資料，重新載入將切換回 Google Sheets 資料源。是否繼續？')) {
-                    dataSource = 'google';
-                    loadGoogleSheets();
+        // 欄位對應（各工作表用自己語意的欄名，這裡做 fallback 對應）
+        function mapRow(row) {
+            const pick = (...keys) => {
+                for (const k of keys) {
+                    const v = row[k];
+                    if (v !== undefined && v !== null && v !== '') return v;
                 }
-            } else {
-                loadGoogleSheets();
-            }
-        }
-
-        function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            // 檢查 XLSX 函式庫是否已載入
-            if (typeof XLSX === 'undefined') {
-                alert('檔案解析失敗！\n\n錯誤訊息：XLSX 函式庫未載入\n\n請確認：\n1. 網路連線正常\n2. 重新整理頁面後再試\n3. 如果問題持續，請聯繫技術支援');
-                event.target.value = '';
-                return;
-            }
-
-            // 驗證檔案類型
-            const validExtensions = ['.xlsx', '.xls'];
-            const fileName = file.name.toLowerCase();
-            const isValidType = validExtensions.some(ext => fileName.endsWith(ext));
-
-            if (!isValidType) {
-                alert('檔案格式錯誤！請上傳 Excel 檔案 (.xlsx 或 .xls)');
-                event.target.value = '';
-                return;
-            }
-
-            dataSource = 'excel';
-            updateSourceIndicator('excel');
-
-            const reader = new FileReader();
-            reader.onerror = function() {
-                alert('檔案讀取失敗！請確認檔案沒有損壞並重試。');
-                event.target.value = '';
+                return '';
             };
+            const dateStr = v => String(v || '').split('T')[0];
+            const pct = pick('預計版本進度', '版本進度', '階段進度');
 
-            reader.onload = function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-
-                    // 檢查工作表是否存在
-                    if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
-                        throw new Error('Excel 檔案中沒有找到工作表');
-                    }
-
-                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                    if (!firstSheet) {
-                        throw new Error('無法讀取工作表：' + workbook.SheetNames[0]);
-                    }
-
-                    const jsonData = XLSX.utils.sheet_to_json(firstSheet);
-
-                    // 檢查是否有資料
-                    if (!jsonData || jsonData.length === 0) {
-                        throw new Error('Excel 檔案中沒有資料');
-                    }
-
-                    // 驗證必要欄位
-                    const requiredColumns = ['產品名稱', '產品類別', '開發階段'];
-                    const firstRow = jsonData[0];
-                    const missingColumns = requiredColumns.filter(col => !(col in firstRow));
-
-                    if (missingColumns.length > 0) {
-                        throw new Error('Excel 檔案缺少必要欄位：' + missingColumns.join('、') +
-                            '\n\n請確認使用正確的範本格式。');
-                    }
-
-                    productsData = jsonData.map(row => ({
-                        id: row['產品編號'] || '',
-                        name: row['產品名稱'] || '',
-                        category: row['產品類別'] || '',
-                        image: row['產品圖片網址'] || 'https://via.placeholder.com/80',
-                        description: row['產品描述'] || '',
-                        priority: row['優先權'] || '一般',
-                        status: row['供貨狀態'] || '',
-                        releaseDate: row['預計上市時間'] || '',
-                        stage: row['開發階段'] || '規劃',
-                        owner1: row['負責人1'] || '',
-                        owner1Color: row['負責人1顏色'] || '#33FF57',
-                        owner2: row['負責人2'] || '',
-                        owner2Color: row['負責人2顏色'] || '#33A1FF',
-                        owner3: row['負責人3'] || '',
-                        owner3Color: row['負責人3顏色'] || '#FFBD33',
-                        history: row['專案歷程'] || '',
-                        lastUpdate: row['最後更新日期'] || ''
-                    }));
-
-                    updateCategoryFilter();
-                    renderProducts();
-                    updateStats();
-                    updateOwnerTracker();
-
-                    console.log('✅ Excel 檔案載入成功，共 ' + productsData.length + ' 筆資料');
-
-                } catch (error) {
-                    console.error('Excel 解析錯誤:', error);
-                    alert('檔案解析失敗！\n\n錯誤訊息：' + error.message +
-                        '\n\n請確認：\n1. 檔案格式正確（.xlsx 或 .xls）\n2. 檔案沒有密碼保護\n3. 包含必要的欄位（產品名稱、產品類別、開發階段）');
-                    event.target.value = '';
-                    dataSource = 'google';
-                    updateSourceIndicator('google');
-                }
+            return {
+                id: String(pick('產品名稱', '專案名稱', '服務名稱')).trim(),
+                image: pick('產品圖片網址', '圖片網址'),
+                category: String(pick('產品種類', '客戶名稱')).trim(),
+                platform: pick('平台'),
+                description: pick('產品描述', '專案描述', '服務描述'),
+                status: String(pick('產品狀態', '專案狀態', '服務狀態')).trim(),
+                owner1: pick('維護者1'), owner2: pick('維護者2'), owner3: pick('維護者3'),
+                owner4: pick('維護者4'), owner5: pick('維護者5'),
+                currentVerNum: pick('最新版本編號', '最新韌體版本編號', '版本編號', '階段名稱'),
+                currentVerContent: pick('最新版本內容', '最新版本更新內容', '版本內容', '階段內容'),
+                currentVerDate: dateStr(pick('最新版本日期', '最新版本更新日期', '版本日期', '階段日期')),
+                plannedVerNum: pick('預計版本編號', '預計韌體版本編號'),
+                plannedVerContent: pick('預計版本內容', '預計版本更新內容'),
+                plannedVerDate: dateStr(pick('預計版本日期', '預計版本更新日期')),
+                progressPercent: (pct !== '' && pct !== null && pct !== undefined) ? pct : '',
+                // 專案 / Service 專用
+                sales: pick('業務名稱'),
+                deviceUsed: pick('使用設備', '相關產品'),
+                customized: pick('是否客製'),
             };
-            reader.readAsArrayBuffer(file);
         }
 
         function showError(message) {
@@ -1285,340 +1645,520 @@
                 <div class="empty-state">
                     <div class="empty-state-icon">⚠️</div>
                     <h3>載入失敗</h3>
-                    <div style="text-align: left; max-width: 600px; margin: 0 auto;">
-                        <p>${message}</p>
-                    </div>
+                    <p>${message}</p>
                 </div>
             `;
         }
 
-        function updateCategoryFilter() {
-            const categories = [...new Set(productsData.map(p => p.category))].filter(Boolean);
-            const select = document.getElementById('categoryFilter');
-            const currentValue = select.value;
-            select.innerHTML = '<option value="">全部類別</option>';
-            categories.forEach(cat => {
-                const option = document.createElement('option');
-                option.value = cat;
-                option.textContent = cat;
-                select.appendChild(option);
+        function getCurrentTabData() {
+            return productsData[activeTab] ? productsData[activeTab].data : [];
+        }
+
+        function updateLastUpdateDate() {
+            const lastUpdateElement = document.getElementById('lastUpdateDate');
+            const sheetData = productsData[activeTab];
+            if (sheetData && sheetData.lastModified) {
+                lastUpdateElement.textContent = `${activeTab} 最後更新時間：${sheetData.lastModified}`;
+            } else {
+                lastUpdateElement.textContent = `${activeTab} 最後更新時間：N/A`;
+            }
+        }
+
+        function fillSelect(id, values, allName) {
+            const select = document.getElementById(id);
+            const current = select.value;
+            select.innerHTML = `<option value="">${escapeHtml(allName)}</option>`;
+            values.forEach(v => {
+                select.innerHTML += `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`;
             });
-            select.value = currentValue;
+            select.value = current;
+        }
+
+        function updateFilter() {
+            const config = getTabConfig(activeTab);
+            document.getElementById('searchInput').placeholder = config.searchPlaceholder;
+
+            const tabData = getCurrentTabData();
+
+            const categories = [...new Set(tabData.map(p => p.category))].filter(Boolean);
+            fillSelect('categoryFilter', categories, config.catAllName);
+
+            const owners = [...new Set(tabData.flatMap(p => [p.owner1, p.owner2, p.owner3, p.owner4, p.owner5]))].filter(Boolean);
+            fillSelect('ownerFilter', owners, '全部維護者');
+            document.getElementById('ownerFilter').style.display = owners.length ? '' : 'none';
+
+            const statuses = [...new Set(tabData.map(p => p.status))].filter(Boolean);
+            fillSelect('statusFilter', statuses, '全部狀態');
+        }
+
+        function filterProducts() {
+            renderProducts();
+            updateStats();
+            updateUrlParams();
+        }
+
+        function clearFilters(skipRender) {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('categoryFilter').value = '';
+            document.getElementById('ownerFilter').value = '';
+            document.getElementById('statusFilter').value = '';
+            if (!skipRender) filterProducts();
+        }
+
+        function getFilteredData() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const ownerFilter = document.getElementById('ownerFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            return getCurrentTabData().filter(p => {
+                const matchSearch = !searchTerm || p.id.toLowerCase().includes(searchTerm);
+                const matchCategory = !categoryFilter || p.category === categoryFilter;
+                const matchOwner = !ownerFilter || [p.owner1, p.owner2, p.owner3, p.owner4, p.owner5].includes(ownerFilter);
+                const matchStatus = !statusFilter || p.status === statusFilter;
+                return matchSearch && matchCategory && matchOwner && matchStatus;
+            });
         }
 
         function renderProducts() {
-            const categoryFilter = document.getElementById('categoryFilter').value;
-            const progressFilter = document.getElementById('progressFilter').value;
-            const priorityFilter = document.getElementById('priorityFilter').value;
-            const statusFilter = document.getElementById('statusFilter').value;
-            const stageFilter = document.getElementById('stageFilter').value;
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-
-            let filtered = productsData.filter(p => {
-                const matchCategory = !categoryFilter || p.category === categoryFilter;
-
-                // 進度篩選邏輯（支援產品和專案）
-                let matchProgress = true;
-                if (progressFilter === '進行中') {
-                    const currentStages = getStagesForCategory(p.category, p.name);
-                    const stageIndex = currentStages.indexOf(p.stage);
-                    // 只要不是最後一個階段，就算進行中
-                    matchProgress = stageIndex >= 0 && stageIndex < currentStages.length - 1;
-                } else if (progressFilter === '已上市') {
-                    const currentStages = getStagesForCategory(p.category, p.name);
-                    const lastStage = currentStages[currentStages.length - 1];
-                    matchProgress = p.stage === lastStage;
-                }
-
-                const matchPriority = !priorityFilter || p.priority === priorityFilter;
-                const matchStatus = !statusFilter || p.status === statusFilter;
-                const matchStage = !stageFilter || p.stage === stageFilter;
-                const matchSearch = !searchTerm ||
-                    p.id.toLowerCase().includes(searchTerm) ||
-                    p.name.toLowerCase().includes(searchTerm) ||
-                    p.description.toLowerCase().includes(searchTerm);
-                return matchCategory && matchProgress && matchPriority && matchStatus && matchStage && matchSearch;
-            });
+            const config = getTabConfig(activeTab);
+            const filtered = getFilteredData();
 
             if (filtered.length === 0) {
                 document.getElementById('productsContainer').innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">🔍</div>
-                        <h3>沒有找到符合條件的產品</h3>
+                        <h3>沒有找到符合條件的資料</h3>
                         <p>請調整篩選條件或搜尋關鍵字</p>
                     </div>
                 `;
                 return;
             }
 
-            const grouped = {};
-            filtered.forEach(product => {
-                const cat = product.category || '其他';
-                if (!grouped[cat]) grouped[cat] = [];
-                grouped[cat].push(product);
-            });
-
             let html = '';
-            Object.keys(grouped).forEach(category => {
-                html += `
-                    <div class="category-section">
-                        <div class="category-header">
-                            <h2>${escapeHtml(category)}</h2>
+
+            if (config.type === 'timeline') {
+                // 依「種類/客戶 → 名稱」雙層分組，同名稱多列 = 多筆時間軸紀錄
+                const grouped = {};
+                filtered.forEach(product => {
+                    const cat = product.category || '其他';
+                    const pid = product.id || '未命名';
+                    if (!grouped[cat]) grouped[cat] = {};
+                    if (!grouped[cat][pid]) grouped[cat][pid] = [];
+                    grouped[cat][pid].push(product);
+                });
+
+                Object.keys(grouped).forEach(category => {
+                    html += `
+                        <div class="category-section">
+                            <div class="category-header">
+                                <h2>${escapeHtml(category)}</h2>
+                            </div>
+                            <div class="cards-grid timeline-grid">
+                                ${Object.keys(grouped[category]).map(pid => createTimelineCard(grouped[category][pid], config)).join('')}
+                            </div>
                         </div>
-                        <div class="cards-grid">
-                            ${grouped[category].map(p => createProductCard(p)).join('')}
+                    `;
+                });
+            } else {
+                const grouped = {};
+                filtered.forEach(product => {
+                    const cat = product.category || '其他';
+                    if (!grouped[cat]) grouped[cat] = [];
+                    grouped[cat].push(product);
+                });
+
+                Object.keys(grouped).forEach(category => {
+                    html += `
+                        <div class="category-section">
+                            <div class="category-header">
+                                <h2>${escapeHtml(category)}</h2>
+                            </div>
+                            <div class="cards-grid">
+                                ${grouped[category].map(p => createProductCard(p)).join('')}
+                            </div>
                         </div>
-                    </div>
-                `;
-            });
+                    `;
+                });
+            }
 
             document.getElementById('productsContainer').innerHTML = html;
         }
 
+        function updateStats() {
+            const config = getTabConfig(activeTab);
+            const stats = config.stats;
+            let tabData = getCurrentTabData();
+
+            // 時間軸型：同名稱多列僅計最後一列（最新狀態）
+            if (config.uniqueStats) {
+                const map = {};
+                tabData.forEach(p => { map[p.id] = p; });
+                tabData = Object.values(map);
+            }
+
+            document.getElementById('statsTotalName').innerText = stats.total;
+            document.getElementById('statsTotalCount').textContent = tabData.length;
+
+            ['G1', 'G2', 'G3'].forEach((key, i) => {
+                const groupEl = document.getElementById(`stats${key}Group`);
+                const group = stats.groups[i];
+                if (!group) {
+                    groupEl.style.display = 'none';
+                    return;
+                }
+                groupEl.style.display = '';
+                document.getElementById(`stats${key}Name`).innerText = group.label;
+                const valueEl = document.getElementById(`stats${key}Count`);
+                valueEl.style.color = group.color;
+                valueEl.textContent = tabData.filter(p => group.statuses.includes(p.status)).length;
+            });
+        }
+
+        function applyUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+
+            const tab = params.get('tab');
+            const search = params.get('search');
+            const category = params.get('category');
+            const owner = params.get('owner');
+            const status = params.get('status');
+
+            if (tab) {
+                const tabBtn = [...document.querySelectorAll('.tab-btn')]
+                    .find(btn => btn.dataset.tab === tab || btn.textContent.trim() === tab);
+                if (tabBtn) switchTab(tabBtn.dataset.tab, tabBtn);
+            }
+
+            if (search) document.getElementById('searchInput').value = search;
+
+            function safeSetSelect(id, value) {
+                if (!value) return false;
+                const select = document.getElementById(id);
+                const exists = [...select.options].some(opt => opt.value === value);
+                if (exists) select.value = value;
+                return exists;
+            }
+
+            safeSetSelect('categoryFilter', category);
+            safeSetSelect('ownerFilter', owner);
+            safeSetSelect('statusFilter', status);
+
+            if (search || category || owner || status) filterProducts();
+        }
+
+        function updateUrlParams() {
+            const search = document.getElementById('searchInput').value;
+            const category = document.getElementById('categoryFilter').value;
+            const owner = document.getElementById('ownerFilter').value;
+            const status = document.getElementById('statusFilter').value;
+
+            const params = new URLSearchParams();
+            if (activeTab) params.set('tab', activeTab);
+            if (search) params.set('search', search);
+            if (category) params.set('category', category);
+            if (owner) params.set('owner', owner);
+            if (status) params.set('status', status);
+
+            const queryString = params.toString();
+            history.replaceState(null, '', queryString ? `?${queryString}` : window.location.pathname);
+        }
+
+        function collectOwners(product) {
+            return [product.owner1, product.owner2, product.owner3, product.owner4, product.owner5]
+                .map(o => String(o || '').trim()).filter(Boolean);
+        }
+
+        function ownerTagsHtml(names) {
+            return names.map(name => {
+                const ownerTagColor = ownerTagColorPool[name] || getOwnerTagColor(name);
+                const parenMatch = name.match(/[（(]([^)）]+)[)）]/);
+                const engName = parenMatch ? parenMatch[1] : name;
+                return `
+                    <div class="product-owner-tag" style="background: ${ownerTagColor.bg}; color: ${ownerTagColor.text};" title="${escapeHtml(name)}">
+                        ${escapeHtml(engName)}
+                    </div>`;
+            }).join('');
+        }
+
+        function normalizePercent(raw) {
+            if (raw === '' || raw === null || raw === undefined) return null;
+            let n = parseFloat(raw);
+            if (isNaN(n)) return null;
+            if (n > 0 && n <= 1) n = n * 100; // 儲存格若為百分比格式，值會是 0~1
+            return Math.max(0, Math.min(100, n));
+        }
+
+        // ========================================
+        // 產品卡片（最新版本 → 預計版本）
+        // ========================================
+
         function createProductCard(product) {
-            // 根據產品名稱決定使用哪組階段
-            const currentStages = getStagesForCategory(product.category, product.name);
-            const stageIndex = currentStages.indexOf(product.stage);
-            const progressPercent = stageIndex >= 0 ? ((stageIndex + 1) / currentStages.length) * 100 : 0;
-
-            const owners = [];
-            if (product.owner1) owners.push({ name: product.owner1, color: product.owner1Color });
-            if (product.owner2) owners.push({ name: product.owner2, color: product.owner2Color });
-            if (product.owner3) owners.push({ name: product.owner3, color: product.owner3Color });
-
-            const historyItems = product.history ? product.history.split(/\n/).filter(h => h.trim()) : [];
-
-            // 使用 escapeHtml 防止 XSS 攻擊
-            const safeImageUrl = sanitizeImageUrl(product.image);
             const safeId = escapeHtml(product.id);
-            const safeName = escapeHtml(product.name);
+            const safeImageUrl = sanitizeImageUrl(product.image);
+            const safePlatform = escapeHtml(product.platform);
             const safeDescription = escapeHtml(product.description);
-            const safePriority = escapeHtml(product.priority);
             const safeStatus = escapeHtml(product.status);
-            const safeReleaseDate = escapeHtml(product.releaseDate);
+            const currentVerNum = escapeHtml(product.currentVerNum || 'N/A');
+            const plannedVerNum = escapeHtml(product.plannedVerNum || 'N/A');
+            const currentVerDate = escapeHtml(String(product.currentVerDate || ''));
+            const plannedVerDate = escapeHtml(String(product.plannedVerDate || ''));
+            const currentVerContent = formatVerContent('current', product.currentVerContent || '');
+            const plannedVerContent = formatVerContent('planned', product.plannedVerContent || '');
+            const progressPercent = normalizePercent(product.progressPercent);
+            const platformTagColor = getOwnerTagColor(product.platform);
+            const statusTagColor = statusTagColorPool[product.status]?.dark || '#94A3B8'; // 深灰藍
+            const cardId = `card-${Math.random().toString(36).substr(2, 9)}`; // 生成唯一ID用於版本內容切換
+
+            const owners = collectOwners(product);
+            const fillPercent = progressPercent !== null ? progressPercent : 0;
+            const progressPercentDisplay = progressPercent !== null ? '' : 'display: none';
 
             return `
                 <div class="product-card">
-                    <div class="card-header">
-                        <img src="${safeImageUrl}" alt="${safeName}" class="product-image"
-                             onerror="this.src='https://via.placeholder.com/80?text=No+Image'">
-                        <div class="product-info">
-                            <div class="product-title">${safeName}</div>
-                            ${safeId ? `<div style="font-size:1.05rem; color:var(--gray-600); font-weight:700; font-family:'Space Mono',monospace; margin-bottom:0.4rem;">${safeId}</div>` : ''}
+                    <div class="card-info">
+                        <div class="card-info-top">
+                            <div class="product-name">${safeId}</div>
+                            ${safePlatform ? `<span class="product-platform-tag" style="background: ${platformTagColor.bg}; color: ${platformTagColor.text};">${safePlatform}</span>` : ``}
+                            ${safeStatus ? `
+                            <div class="product-status-tag" style="background: ${statusTagColor}">
+                                <span>${safeStatus}</span>
+                            </div>` : ``}
+                        </div>
+                        <div class="card-info-middle">
+                            ${safeImageUrl ? `<img src="${safeImageUrl}" alt="${safeId}" class="product-image">` : `<div class="product-image"></div>`}
                             <div class="product-desc">${safeDescription}</div>
-                            <div class="status-row">
-                                <span class="priority-tag priority-${safePriority}">${safePriority}</span>
-                                <div class="status-badge">
-                                    <span class="status-dot" style="background: ${statusColors[product.status] || '#999'}"></span>
-                                    <span>${safeStatus}</span>
-                                </div>
-                                ${product.releaseDate ? `<span class="release-date">📅 ${safeReleaseDate}</span>` : ''}
-                            </div>
-                            ${owners.length > 0 ? `
-                                <div class="owner-badges">
-                                    ${owners.map(o => {
-                                        const safeName = escapeHtml(o.name);
-                                        const safeColor = sanitizeCssColor(o.color);
-                                        return `
-                                        <div class="owner-badge" style="background: ${safeColor}" title="${safeName}">
-                                            ${escapeHtml(getInitials(o.name))}
-                                        </div>
-                                    `;
-                                    }).join('')}
-                                </div>
-                            ` : ''}
+                        </div>
+                        <div class="card-info-bottom">
+                            ${ownerTagsHtml(owners)}
                         </div>
                     </div>
-                    <div class="progress-section">
-                        <div class="progress-bar-container">
+                    <div class="card-progress">
+                        <div class="progress-container">
                             <div class="progress-track"></div>
-                            <div class="progress-fill" style="width: ${progressPercent}%"></div>
+                            <div class="progress-fill" style="width: calc((100% - 108px) * ${fillPercent / 100})"></div>
+                            <div class="progress-percent" style="${progressPercentDisplay}">${Math.round(fillPercent)}%</div>
                             <div class="progress-nodes">
-                                ${currentStages.map((stage, i) => {
-                                    const safeStage = escapeHtml(stage);
-                                    return `
-                                    <div class="progress-node">
-                                        <div class="node-dot ${i <= stageIndex ? 'active' : ''}"></div>
-                                        <span class="node-label ${i <= stageIndex ? 'active' : ''}">${safeStage}</span>
+                                <div class="progress-node" onclick="toggleVersionContent('${cardId}', 'current', '${currentVerNum}', '${currentVerDate}')">
+                                    <div class="node-dot active"></div>
+                                    <div class="node-info">
+                                        <span class="node-label">${currentVerNum}</span>
+                                        ${currentVerDate ? `<span class="node-date">${currentVerDate}</span>` : ''}
                                     </div>
-                                `;
-                                }).join('')}
+                                </div>
+                                <div class="progress-node" onclick="toggleVersionContent('${cardId}', 'planned', '${plannedVerNum}', '${plannedVerDate}')">
+                                    <div class="node-dot ${fillPercent >= 100 ? 'active' : ''}"></div>
+                                    <div class="node-info">
+                                        <span class="node-label">${plannedVerNum}</span>
+                                        ${plannedVerDate ? `<span class="node-date">${plannedVerDate}</span>` : ''}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    ${historyItems.length > 0 ? `
-                        <div class="history-section">
-                            ${historyItems.map(item => `<div class="history-item">${escapeHtml(item)}</div>`).join('')}
+                    <div class="card-version" id="${cardId}">
+                        <div class="version-header" id="${cardId}-header">
+                            <span class="version-icon">${clipboard_svg}</span>
+                            <span class="version-title">最新版本: ${currentVerNum || 'N/A'}</span>
+                            <span class="version-subtitle">${currentVerDate}</span>
                         </div>
-                    ` : ''}
+                        <div class="version-content-wrapper">
+                            <div class="version-content" data-version="current">${currentVerContent}</div>
+                            <div class="version-content" data-version="planned" style="display: none;">${plannedVerContent}</div>
+                        </div>
+                    </div>
                 </div>
             `;
         }
 
-        function getInitials(name) {
-            if (!name) return '';
-            const parts = name.split('');
-            if (parts.length >= 2) {
-                return parts[parts.length - 2] + parts[parts.length - 1];
-            }
-            return name.substring(0, 2);
-        }
+        // ========================================
+        // 時間軸卡片（EZ-UAQ / 專案 / Service）
+        // ========================================
 
-        function filterProducts() {
-            renderProducts();
-            updateStats();
-        }
+        function createTimelineCard(records, config) {
+            if (!records || records.length === 0) return '';
 
-        function updateStats() {
-            const total = productsData.length;
+            const recordsReverse = [...records].reverse(); // 試算表由上到下 = 由舊到新，反轉後最新在最上面
+            const recordsCount = recordsReverse.length;
+            const latest = recordsReverse[0];
 
-            // 進行中的判斷：產品類別的前4個階段，或專案類別的前4個階段
-            const ongoing = productsData.filter(p => {
-                const currentStages = getStagesForCategory(p.category, p.name);
-                const stageIndex = currentStages.indexOf(p.stage);
-                // 只要不是最後一個階段，就算進行中
-                return stageIndex >= 0 && stageIndex < currentStages.length - 1;
-            }).length;
+            const safeId = escapeHtml(latest.id);
+            const safeImageUrl = sanitizeImageUrl(latest.image);
+            const safeStatus = escapeHtml(latest.status);
+            const safeDescription = escapeHtml(latest.description);
+            const statusTagColor = statusTagColorPool[latest.status]?.dark || '#94A3B8';
 
-            // 已完成的判斷：產品的「上市」或專案的「結案」
-            const completed = productsData.filter(p => {
-                const currentStages = getStagesForCategory(p.category, p.name);
-                const lastStage = currentStages[currentStages.length - 1];
-                return p.stage === lastStage;
-            }).length;
+            const owners = collectOwners(latest);
 
-            const urgent = productsData.filter(p => p.priority === '緊急').length;
-
-            document.getElementById('totalCount').textContent = total;
-            document.getElementById('ongoingCount').textContent = ongoing;
-            document.getElementById('completedCount').textContent = completed;
-            document.getElementById('urgentCount').textContent = urgent;
-        }
-
-        function parseDate(value) {
-            if (!value) return null;
-            let d;
-            if (typeof value === 'string') {
-                d = new Date(value);
-            } else if (value instanceof Date) {
-                d = value;
-            } else if (typeof value === 'number') {
-                d = new Date((value - 25569) * 86400 * 1000);
-            }
-            return (d && !isNaN(d.getTime())) ? d : null;
-        }
-
-        function updateOwnerTracker() {
-            const container = document.getElementById('ownerTracker');
-            if (!container) return;
-
-            // 彙整每位負責人1的最新更新日期
-            const ownerMap = {};
-            productsData.forEach(p => {
-                if (!p.owner1) return;
-                const d = parseDate(p.lastUpdate);
-                if (!d) return;
-                if (!ownerMap[p.owner1] || d > ownerMap[p.owner1].date) {
-                    ownerMap[p.owner1] = { date: d, color: p.owner1Color || '#6b7280' };
-                }
-            });
-
-            const entries = Object.entries(ownerMap);
-            if (entries.length === 0) {
-                container.style.display = 'none';
-                return;
+            // Meta 資訊列（專案 / Service）
+            let metaHtml = '';
+            if (config.meta) {
+                const groups = [];
+                config.meta.forEach(m => {
+                    const value = String(latest[m.field] || '').trim();
+                    if (!value) return;
+                    let tags;
+                    if (m.split) {
+                        tags = value.split(/[,，、]/).map(d => d.trim()).filter(Boolean).map(d =>
+                            `<span class="product-owner-tag" style="background:#F1F5F9;color:#334155;">${escapeHtml(d)}</span>`
+                        ).join('');
+                    } else if (m.field === 'sales') {
+                        const c = ownerTagColorPool[value] || getOwnerTagColor(value);
+                        tags = `<span class="product-owner-tag" style="background:${c.bg};color:${c.text};">${escapeHtml(value)}</span>`;
+                    } else {
+                        tags = `<span class="product-owner-tag" style="background:#F1F5F9;color:#334155;">${escapeHtml(value)}</span>`;
+                    }
+                    groups.push(`
+                        <div class="meta-group">
+                            <div class="meta-label">${escapeHtml(m.label)}</div>
+                            <div class="meta-tags">${tags}</div>
+                        </div>`);
+                });
+                groups.push(`
+                    <div class="meta-group">
+                        <div class="meta-label">RD9 維護者</div>
+                        <div class="meta-tags">${owners.length ? ownerTagsHtml(owners) : '<span style="font-size:13px;color:var(--gray-400);">—</span>'}</div>
+                    </div>`);
+                metaHtml = `<div class="meta-row">${groups.join('<div class="meta-divider"></div>')}</div>`;
+            } else {
+                metaHtml = `<div class="timeline-card-owners">${ownerTagsHtml(owners)}</div>`;
             }
 
-            // 依更新日期由舊到新排序（最久未更新的排最前面）
-            entries.sort((a, b) => a[1].date - b[1].date);
+            const nodesHtml = recordsReverse.map(v => {
+                const progressPercent = normalizePercent(v.progressPercent);
+                const isNodeDotActive = progressPercent === null || progressPercent >= 100;
 
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
+                const verNum = escapeHtml(v.currentVerNum || 'N/A');
+                const verDate = escapeHtml(String(v.currentVerDate || ''));
+                const verContent = formatVerContent('current', v.currentVerContent || '');
+                const verBgColor = statusTagColorPool[v.status]?.light || '#F8FAFC';
+                const verBorderColor = statusTagColorPool[v.status]?.dark || '#94A3B8';
 
-            let cards = '';
-            entries.forEach(([name, info]) => {
-                const days = Math.floor((today - info.date) / 86400000);
-                const dateStr = `${info.date.getFullYear()}/${String(info.date.getMonth() + 1).padStart(2, '0')}/${String(info.date.getDate()).padStart(2, '0')}`;
+                const fillPct = progressPercent !== null ? Math.min(progressPercent, 100) : 100;
+                const fillStyle = fillPct === 0 ? 'height: 0' : `height: calc((100% - 28px) * ${fillPct / 100} + 17px)`;
+                const percentLabel = progressPercent !== null
+                    ? `<div class="timeline-progress-percent">${Math.round(progressPercent)}%</div>`
+                    : '';
 
-                let borderColor, pillBg, pillColor;
-                if (days <= 14) {
-                    borderColor = 'var(--success)';
-                    pillBg = '#d4edda'; pillColor = '#155724';
-                } else if (days <= 30) {
-                    borderColor = 'var(--warning)';
-                    pillBg = '#fff3cd'; pillColor = '#856404';
-                } else {
-                    borderColor = 'var(--danger)';
-                    pillBg = '#f8d7da'; pillColor = '#721c24';
-                }
-
-                const safeName = escapeHtml(name);
-                const safeColor = sanitizeCssColor(info.color);
-                const initials = escapeHtml(getInitials(name));
-
-                cards += `
-                    <div class="owner-update-card" data-owner="${safeName}" style="border-left-color:${borderColor}">
-                        <div class="owner-update-avatar" style="background:${safeColor}">${initials}</div>
-                        <div>
-                            <div class="owner-update-name">${safeName}</div>
-                            <div class="owner-update-date">${dateStr}</div>
+                return `
+                    <div class="timeline-row">
+                        <div class="timeline-row-left">
+                            <div class="node-info" style="background: ${verBgColor}; border: 2px solid ${verBorderColor};">
+                                <span class="node-label">${verNum}</span>
+                                ${verDate ? `<span class="node-date">${verDate}</span>` : ''}
+                            </div>
                         </div>
-                        <div class="owner-update-days" style="background:${pillBg};color:${pillColor}">${days} 天前</div>
+                        <div class="timeline-row-center">
+                            <div class="node-dot${isNodeDotActive ? ' active' : ''}"></div>
+                            <div class="timeline-progress-wrap">
+                                <div class="timeline-progress-track"></div>
+                                <div class="timeline-progress-fill" style="${fillStyle}"></div>
+                                ${percentLabel}
+                            </div>
+                        </div>
+                        <div class="timeline-row-right">
+                            <div class="version-content">${verContent}</div>
+                            ${progressPercent !== null ? `<div class="timeline-progress-percent-mobile">${Math.round(progressPercent)}%</div>` : ''}
+                        </div>
                     </div>`;
-            });
+            }).join('');
 
-            container.style.display = 'block';
-            container.innerHTML = `
-                <div class="owner-tracker-title">📋 負責人更新狀態（由舊到新）</div>
-                <div class="owner-cards-row">${cards}</div>`;
-
-            // 綁定 tooltip 事件
-            container.querySelectorAll('.owner-update-card').forEach(card => {
-                const ownerName = card.dataset.owner;
-                card.addEventListener('mouseenter', e => _showOwnerTip(ownerName, e.clientX, e.clientY));
-                card.addEventListener('mousemove',  e => _moveOwnerTip(e.clientX, e.clientY));
-                card.addEventListener('mouseleave', _hideOwnerTip);
-            });
-        }
-
-        function _initOwnerTip() {
-            if (document.getElementById('ownerTooltip')) return;
-            const el = document.createElement('div');
-            el.id = 'ownerTooltip';
-            el.className = 'owner-tooltip';
-            document.body.appendChild(el);
-        }
-
-        function _showOwnerTip(name, x, y) {
-            _initOwnerTip();
-            const info = OWNER_INFO[name];
-            if (!info) return;
-            const tip = document.getElementById('ownerTooltip');
-            tip.innerHTML = `
-                <div class="owner-tooltip-name">
-                    ${escapeHtml(info.en)}
-                    <span style="color:var(--gray-600);font-weight:500;font-size:0.82rem;">／ ${escapeHtml(name)}</span>
+            return `
+                <div class="timeline-card">
+                    <div class="timeline-card-header">
+                        <div class="timeline-card-info">
+                            ${safeImageUrl ? `<img src="${safeImageUrl}" alt="${safeId}" class="product-image">` : ''}
+                            <div class="timeline-card-info-rows">
+                                <div class="timeline-card-info-row-top">
+                                    <span class="timeline-card-title">${safeId}</span>
+                                    ${safeStatus ? `<div class="product-status-tag" style="background:${statusTagColor}"><span>${safeStatus}</span></div>` : ''}
+                                </div>
+                                ${safeDescription ? `<p class="timeline-card-desc">${safeDescription}</p>` : ''}
+                                ${metaHtml}
+                            </div>
+                        </div>
+                        <span class="timeline-card-verTotal">共 ${recordsCount} 筆紀錄</span>
+                    </div>
+                    <div class="timeline-body">
+                        ${nodesHtml}
+                    </div>
                 </div>`;
-            _moveOwnerTip(x, y);
-            tip.classList.add('visible');
         }
 
-        function _moveOwnerTip(x, y) {
-            const tip = document.getElementById('ownerTooltip');
-            if (!tip) return;
-            const tw = tip.offsetWidth  || 220;
-            const th = tip.offsetHeight || 100;
-            tip.style.left = (x + 16 + tw > window.innerWidth  ? x - tw - 8 : x + 16) + 'px';
-            tip.style.top  = (y + 16 + th > window.innerHeight ? y - th - 8 : y + 16) + 'px';
+        function formatVerContent(type, rawText) {
+            rawText = String(rawText || '');
+            if (!rawText.trim()) {
+                if (type == 'current') {
+                    return `<span class="ver-empty">尚無紀錄</span>`;
+                }
+                return `<span class="ver-empty">暫無更新計畫</span>`;
+            }
+            const lines = rawText.split(/\r?\n/).filter(ln => ln.trim());
+            const items = lines.map(line => `<li>${escapeHtml(line.trim())}</li>`).join('');
+            const listHtml = `<ul>${items}</ul>`;
+
+            if (lines.length <= 15) { // 超過此行數才會顯示收合按鈕
+                return listHtml;
+            }
+
+            // 超過行數，添加收合按鈕
+            const uid = 'vc_' + Math.random().toString(36).slice(2, 9);
+            return `
+                <div class="version-content-collapsible collapsed" id="${uid}">
+                    <div class="version-content-grid">
+                        <div class="version-content-inner">${listHtml}</div>
+                    </div>
+                    <button class="version-content-toggle" onclick="collapseVersionContent('${uid}', this)" aria-expanded="false">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                        <span>展開全部 ${lines.length} 項</span>
+                    </button>
+                </div>`;
         }
 
-        function _hideOwnerTip() {
-            const tip = document.getElementById('ownerTooltip');
-            if (tip) tip.classList.remove('visible');
+        function collapseVersionContent(uid, btn) {
+            const wrapper = document.getElementById(uid);
+            if (!wrapper) return;
+            const isCollapsed = wrapper.classList.contains('collapsed');
+            const totalLines = wrapper.querySelectorAll('li').length;
+
+            if (isCollapsed) { // 展開
+                wrapper.classList.remove('collapsed');
+                wrapper.classList.add('expanded');
+                btn.setAttribute('aria-expanded', 'true');
+                btn.querySelector('span').textContent = '收合';
+            } else { // 收合
+                wrapper.classList.remove('expanded');
+                wrapper.classList.add('collapsed');
+                btn.setAttribute('aria-expanded', 'false');
+                btn.querySelector('span').textContent = `展開全部 ${totalLines} 項`;
+            }
         }
 
-        function downloadTemplate() {
-            window.open('產品開發進度追蹤_RD9.xlsx', '_blank');
+        function toggleVersionContent(cardId, version, verNum, verDate) {
+            const card = document.getElementById(cardId);
+            if (!card) return;
+
+            // 切換內容顯示
+            const contents = card.querySelectorAll('.version-content');
+            contents.forEach(content => {
+                if (content.dataset.version === version) {
+                    content.style.display = 'block';
+                } else {
+                    content.style.display = 'none';
+                }
+            });
+
+            // 更新標題
+            const header = document.getElementById(`${cardId}-header`);
+            if (header) {
+                const icon = version === 'current' ? clipboard_svg : target_svg;
+                const title = version === 'current' ? '最新版本' : '預計版本';
+                header.innerHTML = `
+                    <span class="version-icon">${icon}</span>
+                    <span class="version-title">${title}: ${verNum || 'N/A'}</span>
+                    <span class="version-subtitle">${verDate || ''}</span>
+                `;
+            }
         }
     </script>
 </body>
